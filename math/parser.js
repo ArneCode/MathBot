@@ -101,7 +101,7 @@ function structureOps(tokens, priority) {
     }
     if (curr_node.length == 0) {
       throw new Error("operators need to be placed between singles")
-    }
+    } 
     subnodes.push(tokens_to_tree(curr_node, priority + 1))
     if (subnodes.length == 1) {
       return subnodes[0]
