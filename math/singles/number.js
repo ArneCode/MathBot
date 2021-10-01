@@ -1,5 +1,5 @@
-import {MathBlock} from "../calcBlock.js"
-export default class NumberBlock extends MathBlock{
+import {SingleBlock} from "../calcBlock.js"
+export default class NumberBlock extends SingleBlock{
   constructor(n){
     super()
     this.value=BigNumber(n)

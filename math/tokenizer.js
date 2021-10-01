@@ -5,7 +5,7 @@ let token_types=[
   },
   {
     name:"operator",
-    rx: /^[+\-*\/]/
+    rx: /^[+\-*\/\^]/
   },
   {
     name:"bracket",

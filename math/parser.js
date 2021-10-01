@@ -1,11 +1,15 @@
 import Mult from "./operators/mult.js"
 import Plus from "./operators/plus.js"
+import Div from "./operators/div.js"
+import Pow from "./operators/pow.js"
 import NumberBlock from "./singles/number.js"
 import Group from "./singles/group.js"
 import tokenize from "./tokenizer.js"
 let priorityList = [
   Plus,
-  Mult
+  Mult,
+  Pow,
+  Div //Div always needs to be last position
 ]
 export default function parse(text) {
   let tokens = tokenize(text)
@@ -15,7 +19,9 @@ export default function parse(text) {
 }
 let opClasses = {
   "+": Plus,
-  "*": Mult
+  "*": Mult,
+  "/": Div,
+  "^": Pow
 }
 function addObjWrappers(tokens) {
   let nTokens = []
@@ -101,13 +107,19 @@ function structureOps(tokens, priority) {
     }
     if (curr_node.length == 0) {
       throw new Error("operators need to be placed between singles")
-    } 
+    }
     subnodes.push(tokens_to_tree(curr_node, priority + 1))
     if (subnodes.length == 1) {
       return subnodes[0]
     }
     return new Op(subnodes)
-  } else {
+  }else if(Op.twoSided){
+    if(tokens.length==3&&tokens[1].constructor==Op){
+      return new Op(tokens[0],tokens[2])
+    }
+    else return tokens_to_tree(tokens,priority+1)
+  }
+  else {
     console.log(Op)
     throw "not jet implemented"
   }
