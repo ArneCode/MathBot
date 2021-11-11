@@ -1,5 +1,6 @@
 import Mult from "./operators/mult.js"
 import Plus from "./operators/plus.js"
+import Negative from "./operators/negative.js"
 import Div from "./operators/div.js"
 import Pow from "./operators/pow.js"
 import NumberBlock from "./singles/number.js"
@@ -7,9 +8,10 @@ import Group from "./singles/group.js"
 import tokenize from "./tokenizer.js"
 let priorityList = [
   Plus,
+  Negative,
   Mult,
-  Pow,
-  Div //Div always needs to be last position
+  Div,
+  Pow
 ]
 export default function parse(text) {
   let tokens = tokenize(text)
@@ -19,6 +21,7 @@ export default function parse(text) {
 }
 let opClasses = {
   "+": Plus,
+  "-": Negative,
   "*": Mult,
   "/": Div,
   "^": Pow
@@ -118,6 +121,22 @@ function structureOps(tokens, priority) {
       return new Op(tokens[0],tokens[2])
     }
     else return tokens_to_tree(tokens,priority+1)
+  }
+  else if(Op.oneSided){
+    let nTokens=[]
+    let pToken
+    for(let i=0;i<tokens.length;i++){
+      let token=tokens[i]
+      nTokens.push(pToken)
+      if(token.constructor==Op){
+        if(Op.oneSidedLeft){
+          pToken=new Op()
+          throw "continue here"
+        }
+      }else{
+        pToken=token
+      }
+    }
   }
   else {
     console.log(Op)

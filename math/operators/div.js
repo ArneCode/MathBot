@@ -4,6 +4,12 @@ export default class Div extends TwoSideOp {
     if (!left.single && right.single) {
       throw new Error("Blocks on both sides of '/' must be singles")
     }
+    while(left.constructor.name="Group"){
+      left=left.subnode
+    }
+    while(right.constructor.name="Group"){
+      right=right.subnode
+    }
     super({ sign: "/", priority: 3, left, right })
   }
 }

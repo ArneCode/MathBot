@@ -40,3 +40,23 @@ export class TwoSideOp extends FixOpBlock {
     this.subnodes = [left, right]
   }
 }
+export class OneSideOp extends FixOpBlock{
+  static oneSided=true
+  constructor({priority}={}){
+    super({priority})
+  }
+}
+export class OneSideLeftOp extends OneSideOp{
+  //op is on the left side e.g. "-" (minus)
+  static oneSidedLeft=true
+  constructor({priority}={}){
+    super({priority})
+  }
+}
+export class OneSideRightOp extends OneSideOp{
+  //op is on the right side e.g. "!" (factorial)
+  static oneSidedRight=true
+  constructor({priority}={}){
+    super({priority})
+  }
+}
