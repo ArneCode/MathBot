@@ -6,4 +6,7 @@ export default class Group extends SingleBlock {
     this.subnode = subnode
     this.type = "group"
   }
+  toString(){
+    return "("+this.subnode.toString()+")"
+  }
 }

@@ -36,3 +36,4 @@ export default function tokenize(text) {
   }
   return tokens
 }
+M.tokenize=tokenize

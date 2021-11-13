@@ -7,8 +7,8 @@ import NumberBlock from "./singles/number.js"
 import Group from "./singles/group.js"
 import tokenize from "./tokenizer.js"
 let priorityList = [
-  Plus,
   Negative,
+  Plus,
   Mult,
   Div,
   Pow
@@ -31,13 +31,13 @@ function addObjWrappers(tokens) {
   for (let token of tokens) {
     switch (token.type) {
       case "number": {
-        nTokens.push(new NumberBlock(token.text))
+        nTokens.push(new NumberBlock({n:token.text}))
         break;
       }
       case "operator": {
         let opBlock = opClasses[token.text]
         if (opBlock) {
-          nTokens.push(new opBlock())
+          nTokens.push(new opBlock({temp:true}))
         } else {
           throw new Error("no such operator defined: " + token.text)
         }
@@ -91,6 +91,36 @@ function brack_to_gr(tokens) {
 }
 function structureOps(tokens, priority) {
   let Op = priorityList[priority]
+  if (Op == Negative) {
+    let subnodes = []
+    let isNeg = false
+    let curr_node = []
+    let wrapNeg = () => {
+      if(subnodes.length>0){
+        subnodes.push(new Plus())
+      }
+      let subnode = new Negative({subnode:tokens_to_tree(curr_node, priority + 1)})
+      subnodes.push(subnode)
+      curr_node = []
+    }
+    for (let i = 0; i < tokens.length; i++) {
+      let token = tokens[i]
+      if (token.constructor == Negative) {
+        isNeg = !isNeg
+        if (!isNeg) {
+          wrapNeg()
+        }
+      } else if (isNeg) {
+        curr_node.push(token)
+      } else {
+        subnodes.push(token)
+      }
+    }
+    if (isNeg) {
+      wrapNeg()
+    }
+    return structureOps(subnodes, priority + 1)
+  }
   if (Op.swappable) {
     let subnodes = []
     let curr_node = []
@@ -109,34 +139,20 @@ function structureOps(tokens, priority) {
       }
     }
     if (curr_node.length == 0) {
+      console.log(tokens)
       throw new Error("operators need to be placed between singles")
     }
     subnodes.push(tokens_to_tree(curr_node, priority + 1))
     if (subnodes.length == 1) {
       return subnodes[0]
     }
-    return new Op(subnodes)
-  }else if(Op.twoSided){
-    if(tokens.length==3&&tokens[1].constructor==Op){
-      return new Op(tokens[0],tokens[2])
+    return new Op({subnodes})
+  } else if (Op.twoSided) {
+    if (tokens.length == 3 && tokens[1].constructor == Op) {
+      console.log(tokens)
+      return new Op({left:tokens[0], right:tokens[2]})
     }
-    else return tokens_to_tree(tokens,priority+1)
-  }
-  else if(Op.oneSided){
-    let nTokens=[]
-    let pToken
-    for(let i=0;i<tokens.length;i++){
-      let token=tokens[i]
-      nTokens.push(pToken)
-      if(token.constructor==Op){
-        if(Op.oneSidedLeft){
-          pToken=new Op()
-          throw "continue here"
-        }
-      }else{
-        pToken=token
-      }
-    }
+    else return tokens_to_tree(tokens, priority + 1)
   }
   else {
     console.log(Op)
