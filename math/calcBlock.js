@@ -18,14 +18,15 @@ export class SingleBlock extends MathBlock {
 }
 export class SwapOpBlock extends OpBlock {
   static swappable = true
-  constructor({ sign, priority, subnodes } = {}) {
+  constructor({ sign, priority, subnodes, laSign } = {}) {
     super({ priority })
     this.sign = sign
+    this.laSign = laSign || sign
     let oldSubnodes = subnodes
     let nSubnodes = []
     let redo = false
     do {
-      redo=false
+      redo = false
       for (let subnode of oldSubnodes) {
         while (subnode.type == "group") {
           subnode = subnode.subnode
@@ -50,14 +51,29 @@ export class SwapOpBlock extends OpBlock {
       if (subnode.type == "operator" && subnode.priority < this.priority) {
         subTexts.push("(" + subnode.toString() + ")")
       }
-      else if(this.sign=="+"&&subnode.negative){
-        subTexts[subTexts.length-1]+=subnode.toString()
+      else if (this.sign == "+" && subnode.negative) {
+        subTexts[subTexts.length - 1] += subnode.toString()
       }
       else {
         subTexts.push(subnode.toString())
       }
     }
     return subTexts.join(this.sign)
+  }
+  toLatex() {
+    let subTexts = []
+    for (let subnode of this.subnodes) {
+      if (subnode.type == "operator" && subnode.priority < this.priority) {
+        subTexts.push("\\left(" + subnode.toLatex() + "\\right)")
+      }
+      else if (this.sign == "+" && subnode.negative) {
+        subTexts[subTexts.length - 1] += subnode.toLatex()
+      }
+      else {
+        subTexts.push(subnode.toLatex())
+      }
+    }
+    return subTexts.join(this.laSign)
   }
 }
 export class FixOpBlock extends OpBlock {
@@ -73,6 +89,22 @@ export class TwoSideOp extends FixOpBlock {
     this.left = left
     this.right = right
     this.subnodes = [left, right]
+  }
+  get leftLatex() {
+    let node = this.left
+    if (node.single) {
+      return node.toLatex()
+    } else {
+      return "\\left(" + node.toLatex() + "\\right)"
+    }
+  }
+  get rightLatex() {
+    let node = this.right
+    if (node.single) {
+      return node.toLatex()
+    } else {
+      return "\\left(" + node.toLatex() + "\\right)"
+    }
   }
   toString() {
     let { left, right } = this

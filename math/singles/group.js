@@ -9,4 +9,7 @@ export default class Group extends SingleBlock {
   toString(){
     return "("+this.subnode.toString()+")"
   }
+  toLatex(){
+    return "\\left("+this.subnode.toString()+"\\right)"
+  }
 }

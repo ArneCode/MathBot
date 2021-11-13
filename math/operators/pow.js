@@ -23,4 +23,7 @@ export default class Pow extends TwoSideOp {
     this.base=left
     this.exp=right
   }
+  toLatex(){
+    return this.leftLatex+"^{"+this.right.toLatex()+"}"
+  }
 }

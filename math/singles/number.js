@@ -8,4 +8,7 @@ export default class NumberBlock extends SingleBlock{
   toString(){
     return this.value.toString()
   }
+  toLatex(){
+    return this.toString()
+  }
 }

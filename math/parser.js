@@ -149,7 +149,6 @@ function structureOps(tokens, priority) {
     return new Op({subnodes})
   } else if (Op.twoSided) {
     if (tokens.length == 3 && tokens[1].constructor == Op) {
-      console.log(tokens)
       return new Op({left:tokens[0], right:tokens[2]})
     }
     else return tokens_to_tree(tokens, priority + 1)

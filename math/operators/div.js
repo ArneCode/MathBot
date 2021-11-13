@@ -6,7 +6,6 @@ export default class Div extends TwoSideOp {
       super({ sign: "/", priority: 3, left: {}, right: {} ,temp})
       return
     }
-    console.log("not temp",left,right)
     if (!left.single || !right.single) {
       throw new Error("Blocks on both sides of '/' must be singles")
     }
@@ -17,5 +16,8 @@ export default class Div extends TwoSideOp {
       right=right.subnode
     }
     super({ sign: "/", priority: 3, left, right })
+  }
+  toLatex(){
+    return "\\frac{"+this.left.toLatex()+"}{"+this.right.toLatex()+"}"
   }
 }
