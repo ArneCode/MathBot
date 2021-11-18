@@ -82,6 +82,7 @@ export class FixOpBlock extends OpBlock {
   }
 }
 export class TwoSideOp extends FixOpBlock {
+  //values are on both sides of operator, but cannot be swapped. For Example: division, exponentiation
   static twoSided = true
   constructor({ sign, priority, left, right } = {}) {
     super({ priority })
@@ -140,5 +141,12 @@ export class OneSideRightOp extends OneSideOp {
   static oneSidedRight = true
   constructor({ priority } = {}) {
     super({ priority })
+  }
+}
+export class TransformBlock extends SingleBlock{
+  //transforms values inside e.g. Could be function/derivative/integral etc.
+  constructor(){
+    super()
+    this.transformer=true
   }
 }

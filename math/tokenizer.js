@@ -1,39 +1,43 @@
-let token_types=[
+let token_types = [
   {
-    name:"number",
+    name: "number",
     rx: /^\d+(\.\d+)?(e[+-]\d+)?/
   },
   {
-    name:"operator",
+    name: "operator",
     rx: /^[+\-*\/\^]/
   },
   {
-    name:"bracket",
+    name: "bracket",
     rx: /^[()]/
-  }
-  ]
+  },
+  {
+    name: "name",
+    rx: /[a-z]+\w*/i
+  },
+]
 export default function tokenize(text) {
   let tokens = []
-  while(text.length>0){
-    let found=false
-    for(let type of token_types){
-      let result=type.rx.exec(text)
-      if(result){
-        found=true
-        result=result[0]
-        let token={
-          type:type.name,
-          text:result
+  while (text.length > 0) {
+    let found = false
+    for (let type of token_types) {
+      let result = type.rx.exec(text)
+      if (result) {
+        found = true
+        result = result[0]
+        let token = {
+          type: type.name,
+          text: result
         }
         tokens.push(token)
-        text=text.slice(result.length)
+        text = text.slice(result.length)
         //alert(text)
       }
     }
-    if(!found){
-      throw new Error("could not tokenize the following Sequence: "+text)
+    if (!found) {
+      throw new Error("could not tokenize the following Sequence: " + text)
     }
   }
   return tokens
 }
-M.tokenize=tokenize
+M.tokenize = tokenize

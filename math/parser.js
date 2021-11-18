@@ -5,6 +5,8 @@ import Div from "./operators/div.js"
 import Pow from "./operators/pow.js"
 import NumberBlock from "./singles/number.js"
 import Group from "./singles/group.js"
+import Variable from "./singles/variable.js"
+import FunctionBlock from "./singles/functionBlock.js"
 import tokenize from "./tokenizer.js"
 let priorityList = [
   Negative,
@@ -31,19 +33,23 @@ function addObjWrappers(tokens) {
   for (let token of tokens) {
     switch (token.type) {
       case "number": {
-        nTokens.push(new NumberBlock({n:token.text}))
+        nTokens.push(new NumberBlock({ n: token.text }))
         break;
       }
       case "operator": {
         let opBlock = opClasses[token.text]
         if (opBlock) {
-          nTokens.push(new opBlock({temp:true}))
+          nTokens.push(new opBlock({ temp: true }))
         } else {
           throw new Error("no such operator defined: " + token.text)
         }
         break;
       }
       case "bracket": {
+        nTokens.push(token)
+        break;
+      }
+      case "name": {
         nTokens.push(token)
         break;
       }
@@ -96,10 +102,10 @@ function structureOps(tokens, priority) {
     let isNeg = false
     let curr_node = []
     let wrapNeg = () => {
-      if(subnodes.length>0){
+      if (subnodes.length > 0) {
         subnodes.push(new Plus())
       }
-      let subnode = new Negative({subnode:tokens_to_tree(curr_node, priority + 1)})
+      let subnode = new Negative({ subnode: tokens_to_tree(curr_node, priority + 1) })
       subnodes.push(subnode)
       curr_node = []
     }
@@ -124,11 +130,11 @@ function structureOps(tokens, priority) {
   if (Op.swappable) {
     let subnodes = []
     let curr_node = []
-    let opFound=false
+    let opFound = false
     for (let i = 0; i < tokens.length; i++) {
       let token = tokens[i]
       if (token.constructor == Op) {
-        opFound=true
+        opFound = true
         if (curr_node.length == 0) {
           throw new Error("operators need to be placed between singles")
         }
@@ -144,24 +150,24 @@ function structureOps(tokens, priority) {
       console.log(tokens)
       throw new Error("operators need to be placed between singles")
     }
-    try{
-    subnodes.push(tokens_to_tree(curr_node, priority + 1))
-    }catch(err){
-      console.log({Op,curr_node,tokens})
+    try {
+      subnodes.push(tokens_to_tree(curr_node, priority + 1))
+    } catch (err) {
+      console.log({ Op, curr_node, tokens })
       throw err
     }
     if (subnodes.length == 1) {
-    //console.log(tokens,subnodes,"length1")
+      //console.log(tokens,subnodes,"length1")
       return subnodes[0]
     }
-    if(opFound){
-      return new Op({subnodes})
-    }else{
+    if (opFound) {
+      return new Op({ subnodes })
+    } else {
       return tokens_to_tree(subnodes)
     }
   } else if (Op.twoSided) {
     if (tokens.length == 3 && tokens[1].constructor == Op) {
-      return new Op({left:tokens[0], right:tokens[2]})
+      return new Op({ left: tokens[0], right: tokens[2] })
     }
     else return tokens_to_tree(tokens, priority + 1)
   }
@@ -170,31 +176,48 @@ function structureOps(tokens, priority) {
     throw "not jet implemented"
   }
 }
+function parseFuncVars(tokens) {
+  let nTokens = []
+  for (let i = 0; i < tokens.length; i++) {
+    let token = tokens[i]
+    if (token.type == "name") {
+      let nextToken = tokens[i + 1]||{}
+      if (nextToken.type == "group") {
+        nTokens.push(new FunctionBlock({ name: token.text, subnodes: tokens_to_tree(nextToken.subnodes) }))
+        i++
+      } else {
+        nTokens.push(new Variable({ name: token.text }))
+      }
+    } else {
+      nTokens.push(token)
+    }
+  }
+  return nTokens
+}
 function tokens_to_tree(tokens, priority = 0) {
   if (priority >= priorityList.length) {
     if (tokens.length > 1) {
+      console.log("tokens:",tokens)
       throw new Error("there seems to be an error. it might be, that you forgot a * sign between elements of the calculation")
     }
     return tokens[0]
   }
-  let pTokens=tokens
-  //console.log("treeifiing",tokens,priority)
+  let pTokens = tokens
   tokens = brack_to_gr(tokens)
-  //console.log("groupified",tokens,pTokens)
+  tokens = parseFuncVars(tokens)
   let result
-  try{
-  result=structureOps(tokens, priority)
-  }catch(err){
-    console.log("tree",tokens,pTokens)
+  try {
+    result = structureOps(tokens, priority)
+  } catch (err) {
+    console.log("tree", tokens, pTokens)
     throw err
   }
-  //console.log(result)
   return result
 }
-function parseLatex(latex){
-  let text=M.latex_to_text(latex)
-  console.log({text})
+function parseLatex(latex) {
+  let text = M.latex_to_text(latex)
+  console.log({ text })
   return parse(text)
 }
-M.parseLatex=parseLatex
+M.parseLatex = parseLatex
 M.parse = parse
