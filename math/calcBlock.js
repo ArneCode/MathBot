@@ -37,10 +37,10 @@ export class SwapOpBlock extends OpBlock {
         } else {
           nSubnodes.push(subnode)
         }
-        if (redo) {
-          oldSubnodes = nSubnodes
-          nSubnodes = []
-        }
+      }
+      if (redo) {
+        oldSubnodes = nSubnodes
+        nSubnodes = []
       }
     } while (redo)
     this.subnodes = nSubnodes

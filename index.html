@@ -6,18 +6,31 @@
 	<meta name="viewport" content="width=device-width">
 	<title>repl.it</title>
 	<link href="style.css" rel="stylesheet" type="text/css" />
+	<!--BigNumber-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/8.0.2/bignumber.min.js" integrity="sha512-7UzDjRNKHpQnkh1Wf1l6i/OPINS9P2DDzTwQNX79JxfbInCXGpgI1RPb3ZD+uTP3O5X7Ke4e0+cxt2TxV7n0qQ=="
+	 crossorigin="anonymous" referrerpolicy="no-referrer">
+	</script>
+  	<link rel="stylesheet" type="text/css" href="mathquill-0.10.1/mathquill.css">
+    	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 </head>
 
 <body>
-  test
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/8.0.2/bignumber.min.js" integrity="sha512-7UzDjRNKHpQnkh1Wf1l6i/OPINS9P2DDzTwQNX79JxfbInCXGpgI1RPb3ZD+uTP3O5X7Ke4e0+cxt2TxV7n0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="useful.js"></script>
-	<script src="script.js"></script>
-	<script src="math/MathBot.js"></script>
+    <script src="mathquill-0.10.1/mathquill.min.js"></script>
+      <script>
+let MQ = MathQuill.getInterface(2);
+</script>
+	<div id="equationInput"></div>
+  <br>
+  <div id="equationResult"></div>
+	<script src="useful.js" type=""></script>
+	<script src="dom.js" type=""></script>
+	<script src="script.js" type=""></script>
+	<script src="math/MathBot.js" type=""></script>
 	<script src="math/calcBlock.js" type="module"></script>
 	<script src="math/singles/group.js" type="module"></script>
 	<script src="math/singles/number.js" type="module"></script>
 	<script src="math/parser.js" type="module"></script>
 	<script src="math/tokenizer.js" type="module"></script>
 </body>
+
 </html>

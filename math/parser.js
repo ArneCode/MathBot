@@ -124,16 +124,18 @@ function structureOps(tokens, priority) {
   if (Op.swappable) {
     let subnodes = []
     let curr_node = []
+    let opFound=false
     for (let i = 0; i < tokens.length; i++) {
       let token = tokens[i]
       if (token.constructor == Op) {
+        opFound=true
         if (curr_node.length == 0) {
           throw new Error("operators need to be placed between singles")
         }
         subnodes.push(tokens_to_tree(curr_node, priority + 1))
         curr_node = []
-        tokens = tokens.slice(i)
-        i = 0
+        //tokens = tokens.slice(i+1)
+        //i = 0
       } else {
         curr_node.push(token)
       }
@@ -142,11 +144,21 @@ function structureOps(tokens, priority) {
       console.log(tokens)
       throw new Error("operators need to be placed between singles")
     }
+    try{
     subnodes.push(tokens_to_tree(curr_node, priority + 1))
+    }catch(err){
+      console.log({Op,curr_node,tokens})
+      throw err
+    }
     if (subnodes.length == 1) {
+    //console.log(tokens,subnodes,"length1")
       return subnodes[0]
     }
-    return new Op({subnodes})
+    if(opFound){
+      return new Op({subnodes})
+    }else{
+      return tokens_to_tree(subnodes)
+    }
   } else if (Op.twoSided) {
     if (tokens.length == 3 && tokens[1].constructor == Op) {
       return new Op({left:tokens[0], right:tokens[2]})
@@ -165,7 +177,24 @@ function tokens_to_tree(tokens, priority = 0) {
     }
     return tokens[0]
   }
+  let pTokens=tokens
+  //console.log("treeifiing",tokens,priority)
   tokens = brack_to_gr(tokens)
-  return structureOps(tokens, priority)
+  //console.log("groupified",tokens,pTokens)
+  let result
+  try{
+  result=structureOps(tokens, priority)
+  }catch(err){
+    console.log("tree",tokens,pTokens)
+    throw err
+  }
+  //console.log(result)
+  return result
 }
+function parseLatex(latex){
+  let text=M.latex_to_text(latex)
+  console.log({text})
+  return parse(text)
+}
+M.parseLatex=parseLatex
 M.parse = parse
