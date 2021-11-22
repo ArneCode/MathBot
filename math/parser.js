@@ -3,6 +3,7 @@ import Plus from "./operators/plus.js"
 import Negative from "./operators/negative.js"
 import Div from "./operators/div.js"
 import Pow from "./operators/pow.js"
+import Root from "./operators/root.js"
 import NumberBlock from "./singles/number.js"
 import Group from "./singles/group.js"
 import Variable from "./singles/variable.js"
@@ -13,9 +14,13 @@ let priorityList = [
   Plus,
   Mult,
   Div,
-  Pow
+  Pow,
+  Root
 ]
 export default function parse(text) {
+  if (!text) {
+    throw new Error("parse expects text, got:" + text)
+  }
   let tokens = tokenize(text)
   tokens = addObjWrappers(tokens)
   let tree = tokens_to_tree(tokens)
@@ -26,7 +31,8 @@ let opClasses = {
   "-": Negative,
   "*": Mult,
   "/": Div,
-  "^": Pow
+  "^": Pow,
+  "°§root§°": Root,
 }
 function addObjWrappers(tokens) {
   let nTokens = []
@@ -111,7 +117,7 @@ function structureOps(tokens, priority) {
     }
     for (let i = 0; i < tokens.length; i++) {
       let token = tokens[i]
-      if (token.constructor == Negative) {
+      if (token.isNegative) {
         isNeg = !isNeg
         if (!isNeg) {
           wrapNeg()
@@ -127,7 +133,7 @@ function structureOps(tokens, priority) {
     }
     return structureOps(subnodes, priority + 1)
   }
-  if (Op.swappable) {
+  if (Op.isSwappable) {
     let subnodes = []
     let curr_node = []
     let opFound = false
@@ -150,12 +156,7 @@ function structureOps(tokens, priority) {
       console.log(tokens)
       throw new Error("operators need to be placed between singles")
     }
-    try {
-      subnodes.push(tokens_to_tree(curr_node, priority + 1))
-    } catch (err) {
-      console.log({ Op, curr_node, tokens })
-      throw err
-    }
+    subnodes.push(tokens_to_tree(curr_node, priority + 1))
     if (subnodes.length == 1) {
       //console.log(tokens,subnodes,"length1")
       return subnodes[0]
@@ -165,7 +166,7 @@ function structureOps(tokens, priority) {
     } else {
       return tokens_to_tree(subnodes)
     }
-  } else if (Op.twoSided) {
+  } else if (Op.isTwoSided) {
     if (tokens.length == 3 && tokens[1].constructor == Op) {
       return new Op({ left: tokens[0], right: tokens[2] })
     }
@@ -181,9 +182,9 @@ function parseFuncVars(tokens) {
   for (let i = 0; i < tokens.length; i++) {
     let token = tokens[i]
     if (token.type == "name") {
-      let nextToken = tokens[i + 1]||{}
-      if (nextToken.type == "group") {
-        nTokens.push(new FunctionBlock({ name: token.text, subnodes: tokens_to_tree(nextToken.subnodes) }))
+      let nextToken = tokens[i + 1] || {}
+      if (nextToken.isGroup) {
+        nTokens.push(new FunctionBlock({ name: token.text, subnodes: nextToken.subnodes }))
         i++
       } else {
         nTokens.push(new Variable({ name: token.text }))
@@ -197,7 +198,7 @@ function parseFuncVars(tokens) {
 function tokens_to_tree(tokens, priority = 0) {
   if (priority >= priorityList.length) {
     if (tokens.length > 1) {
-      console.log("tokens:",tokens)
+      console.log("tokens:", tokens)
       throw new Error("there seems to be an error. it might be, that you forgot a * sign between elements of the calculation")
     }
     return tokens[0]
@@ -209,14 +210,12 @@ function tokens_to_tree(tokens, priority = 0) {
   try {
     result = structureOps(tokens, priority)
   } catch (err) {
-    console.log("tree", tokens, pTokens)
     throw err
   }
   return result
 }
 function parseLatex(latex) {
   let text = M.latex_to_text(latex)
-  console.log({ text })
   return parse(text)
 }
 M.parseLatex = parseLatex

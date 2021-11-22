@@ -5,7 +5,7 @@ let token_types = [
   },
   {
     name: "operator",
-    rx: /^[+\-*\/\^]/
+    rx: /^([+\-*\/\^]|°§root§°)/
   },
   {
     name: "bracket",
@@ -13,11 +13,12 @@ let token_types = [
   },
   {
     name: "name",
-    rx: /[a-z]+\w*/i
-  },
+    rx: /^[a-z]+\w*/i
+  }
 ]
 export default function tokenize(text) {
   let tokens = []
+  text=text.split(" ").join("")
   while (text.length > 0) {
     let found = false
     for (let type of token_types) {

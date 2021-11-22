@@ -1,14 +1,19 @@
-import {SingleBlock} from "../calcBlock.js"
-export default class NumberBlock extends SingleBlock{
-  constructor({n}){
+import { SingleBlock } from "../calcBlock.js"
+export default class NumberBlock extends SingleBlock {
+  constructor({ n }) {
     super()
-    this.value=BigNumber(n)
-    this.type="number"
+    this.value = new Decimal(n)
+    this.type = "number"
+    this.isNumber = true
   }
-  toString(){
+  toNumber(){
+    return this.value.toNumber()
+  }
+  toString() {
     return this.value.toString()
   }
-  toLatex(){
+  toLatex() {
     return this.toString()
   }
 }
+M.singles.NumberBlock = NumberBlock

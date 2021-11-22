@@ -8,16 +8,17 @@ class OpBlock extends MathBlock {
     super()
     this.priority = priority
     this.type = "operator"
+    this.isOperator = true
   }
 }
 export class SingleBlock extends MathBlock {
   constructor() {
     super()
-    this.single = true
+    this.isSingle = true
   }
 }
 export class SwapOpBlock extends OpBlock {
-  static swappable = true
+  static isSwappable = true
   constructor({ sign, priority, subnodes, laSign } = {}) {
     super({ priority })
     this.sign = sign
@@ -28,7 +29,7 @@ export class SwapOpBlock extends OpBlock {
     do {
       redo = false
       for (let subnode of oldSubnodes) {
-        while (subnode.type == "group") {
+        while (subnode.isGroup) {
           subnode = subnode.subnode
         }
         if (subnode.sign == this.sign) {
@@ -51,7 +52,7 @@ export class SwapOpBlock extends OpBlock {
       if (subnode.type == "operator" && subnode.priority < this.priority) {
         subTexts.push("(" + subnode.toString() + ")")
       }
-      else if (this.sign == "+" && subnode.negative) {
+      else if (this.sign == "+" && subnode.isNegative) {
         subTexts[subTexts.length - 1] += subnode.toString()
       }
       else {
@@ -63,10 +64,10 @@ export class SwapOpBlock extends OpBlock {
   toLatex() {
     let subTexts = []
     for (let subnode of this.subnodes) {
-      if (subnode.type == "operator" && subnode.priority < this.priority) {
+      if (subnode.isOperator && subnode.priority < this.priority) {
         subTexts.push("\\left(" + subnode.toLatex() + "\\right)")
       }
-      else if (this.sign == "+" && subnode.negative) {
+      else if (this.sign == "+" && subnode.isNegative) {
         subTexts[subTexts.length - 1] += subnode.toLatex()
       }
       else {
@@ -74,6 +75,36 @@ export class SwapOpBlock extends OpBlock {
       }
     }
     return subTexts.join(this.laSign)
+  }
+  reduceGroups() {
+    console.log("reducing groups")
+    this.subnodes = this.subnodes.map(node => node.subnodes ? node.reduceGroups() : node)
+    //tells subnodes to reduce Groups in their respective subnodes if they do have any
+    let group
+    let others = []
+    for (let i = 0; i < this.subnodes.length; i++) {
+      let node = this.subnodes[i]
+      if (node.priority<this.priority) {
+        group = node
+        others = this.subnodes.slice(0, i).concat(this.subnodes.slice(i + 1))
+        break;
+      }
+    }
+    if (!group) {
+      return this
+    }
+    if (group.isSingle || group.priority >= this.priority) {
+      let nNode = new this.constructor({ subnodes: [group].concat(others) })
+      return nNode.reduceGroups()
+    } else {
+      let nNodes=[]
+      for(let node of group.subnodes){
+        let nNode = new this.constructor({subnodes: [node].concat(others)})
+        nNodes.push(nNode)
+      }
+      let nNode = new group.constructor({subnodes:nNodes})
+      return nNode.reduceGroups()
+    }
   }
 }
 export class FixOpBlock extends OpBlock {
@@ -83,7 +114,7 @@ export class FixOpBlock extends OpBlock {
 }
 export class TwoSideOp extends FixOpBlock {
   //values are on both sides of operator, but cannot be swapped. For Example: division, exponentiation
-  static twoSided = true
+  static isTwoSided = true
   constructor({ sign, priority, left, right } = {}) {
     super({ priority })
     this.sign = sign
@@ -93,7 +124,7 @@ export class TwoSideOp extends FixOpBlock {
   }
   get leftLatex() {
     let node = this.left
-    if (node.single) {
+    if (node.isSingle) {
       return node.toLatex()
     } else {
       return "\\left(" + node.toLatex() + "\\right)"
@@ -101,7 +132,7 @@ export class TwoSideOp extends FixOpBlock {
   }
   get rightLatex() {
     let node = this.right
-    if (node.single) {
+    if (node.isSingle) {
       return node.toLatex()
     } else {
       return "\\left(" + node.toLatex() + "\\right)"
@@ -110,12 +141,12 @@ export class TwoSideOp extends FixOpBlock {
   toString() {
     let { left, right } = this
     let leftText, rightText
-    if (left.single) {
+    if (left.isSingle) {
       leftText = left.toString()
     } else {
       leftText = "(" + left.toString() + ")"
     }
-    if (right.single) {
+    if (right.isSingle) {
       rightText = right.toString()
     } else {
       rightText = "(" + right.toString() + ")"
@@ -143,10 +174,10 @@ export class OneSideRightOp extends OneSideOp {
     super({ priority })
   }
 }
-export class TransformBlock extends SingleBlock{
+export class TransformBlock extends SingleBlock {
   //transforms values inside e.g. Could be function/derivative/integral etc.
-  constructor(){
+  constructor() {
     super()
-    this.transformer=true
+    this.isTransformer = true
   }
 }

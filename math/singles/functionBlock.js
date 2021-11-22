@@ -12,3 +12,4 @@ export default class FunctionBlock extends TransformBlock {
     return this.name+"("+this.subnodes.map(node=>node.toLatex()).join(",")+")"
   }
 }
+M.singles.FunctionBlock=FunctionBlock

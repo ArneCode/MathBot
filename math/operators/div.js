@@ -6,13 +6,13 @@ export default class Div extends TwoSideOp {
       super({ sign: "/", priority: 3, left: {}, right: {} ,temp})
       return
     }
-    if (!left.single || !right.single) {
+    if (!left.isSingle || !right.isSingle) {
       throw new Error("Blocks on both sides of '/' must be singles")
     }
-    while(left.type=="group"){
+    while(left.isGroup){
       left=left.subnode
     }
-    while(right.type=="group"){
+    while(right.isGroup){
       right=right.subnode
     }
     super({ sign: "/", priority: 3, left, right })
@@ -20,4 +20,9 @@ export default class Div extends TwoSideOp {
   toLatex(){
     return "\\frac{"+this.left.toLatex()+"}{"+this.right.toLatex()+"}"
   }
+  reduceGroups(){
+    return this
+    //temporary
+  }
 }
+M.operators.Div=Div

@@ -8,6 +8,7 @@ export default class Mult extends SwapOpBlock {
     if (subnodes.length < 2) {
       throw new SyntaxError("there need to be at least two elements in a multiplication chain")
     }
-    super({ sign: "*", priority: 2, subnodes , laSign:"\\cdot"})
+    super({ sign: "*", priority: 2, subnodes , laSign:"\\cdot "})
   }
 }
+M.operators.Mult=Mult

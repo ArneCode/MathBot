@@ -1,13 +1,14 @@
 import { SingleBlock } from "../calcBlock.js"
 export default class Variable extends SingleBlock {
-  constructor({name}){
+  constructor({ name }) {
     super()
-    this.name=name
+    this.name = name
   }
-  toString(){
+  toString() {
     return this.name
   }
-  toLatex(){
+  toLatex() {
     return this.name
   }
 }
+M.singles.Variable = Variable

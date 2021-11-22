@@ -8,3 +8,4 @@ export default class Plus extends SwapOpBlock {
     super({ sign: "+", priority: 0, subnodes })
   }
 }
+M.operators.Plus=Plus

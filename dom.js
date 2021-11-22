@@ -15,22 +15,35 @@ window.onload = function () {
     charsThatBreakOutOfSupSub: '=',
     supSubsRequireOperand: true
   })
-  equationMathField.latex(window.sessionStorage.getItem("mainEquationLatex") || "x^2=a")
+  equationMathField.latex(window.sessionStorage.getItem("mainEquationLatex") || "x^2")
 }
 function checkInput() {
-  //has become unimportant because of supSubsRequireOperand option in MQ.MathField
   let latex = equationMathField.latex()
+  /*
+  //has become unimportant because of supSubsRequireOperand option in MQ.MathField :
   let nLatex = latex.replace(/\^{\^({([^{}]+)}|([^{}]+))}/, "^{$2$3}")
-  console.log(latex, nLatex)
+  */
+  let nLatex = latex.replace(/\^{ }/, "")
+  //console.log(latex, nLatex)
   if (nLatex != latex) {
     equationMathField.latex(nLatex)
   }
 }
 function handleEquationSubmit() {
+  checkInput()
+  console.clear()
   let latex = equationMathField.latex()
   console.log(latex)
-  let node = M.parseLatex(latex)
+  let node
+  try {
+    node = M.parseLatex(latex)
+  } catch (err) {
+    throw err
+  }
   console.log(node)
+  node = node.toSingularExp()
+  node = node.reduceGroups()
   equationResult.innerHTML = node.toLatex()
+  console.log(equationResult.innerHTML)
   MQ.StaticMath(equationResult)
 }
