@@ -33,17 +33,19 @@ function handleEquationSubmit() {
   checkInput()
   console.clear()
   let latex = equationMathField.latex()
-  console.log(latex)
+  //console.log(latex)
   let node
   try {
-    node = M.parseLatex(latex)
+    node = M.parseLatex(latex).check()
   } catch (err) {
     throw err
   }
-  console.log(node)
+  //console.log(node)
   node = node.toSingularExp()
   node = node.reduceGroups()
+  node = node.reduceNumbers()
+  //console.log(node)
   equationResult.innerHTML = node.toLatex()
-  console.log(equationResult.innerHTML)
+  //console.log(equationResult.innerHTML)
   MQ.StaticMath(equationResult)
 }

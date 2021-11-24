@@ -16,8 +16,24 @@ export default class Root extends TwoSideOp {
       right = right.subnode
     }
     super({ sign: "°§root§°", priority: 4, left, right })
-    this.radicand = right //the radicand is what is under the radic
-    this.index = left //index is the n in n-th root
+  }
+  get radicand(){ //the radicand is what is under the radic
+    return this.right
+  }
+  get index(){ //index is the n in n-th root
+    return this.left
+  }
+  get exp(){
+    if(this.index.isNumber){
+      return new M.NumberBlock({n:new Decimal(1).div(this.index.value)})
+    }else{
+      let dividend=new M.NumberBlock({n:1})
+      let divBlock=new M.operators.Div({left:dividend,right:this.index})
+      return divBlock//.reduceNumbers()
+    }
+  }
+  get base(){
+    return this.radicand
   }
   reduceGroups() {
     return this

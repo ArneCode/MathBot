@@ -1,5 +1,5 @@
-import { SingleBlock } from "../calcBlock.js"
-export default class Variable extends SingleBlock {
+import { ValueBlock } from "../calcBlock.js"
+export default class Variable extends ValueBlock {
   constructor({ name }) {
     super()
     this.name = name

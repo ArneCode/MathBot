@@ -20,17 +20,18 @@ export default class Pow extends TwoSideOp {
       console.log({ left, right }, e)
     }
     super({ sign: "^", priority: 4, left, right })
-    this.base = left
-    this.exp = right
+  }
+  get base(){
+    return this.left
+  }
+  get exp(){
+    return this.right
   }
   toString() {
     return this.leftLatex + "^{" + this.right.toString() + "}"
   }
   toLatex() {
     return this.leftLatex + "^{" + this.right.toLatex() + "}"
-  }
-  reduceGroups(){
-    return this
   }
   toSingularExp() {
     let { exp } = this
@@ -43,10 +44,19 @@ export default class Pow extends TwoSideOp {
       if (n > 0) {
         console.log("n:", n)
         let rationalExp = new M.singles.NumberBlock({ n })
-        factors.push(new Pow({ left: this.base, right: rationalExp , checkSingles:false}))
+        factors.push(new Pow({ left: this.base, right: rationalExp, checkSingles: false }))
       }
       return new M.operators.Mult({ subnodes: factors })
     }
+  }
+  check(){
+    super.check()
+    if(this.exp.toString()=="1"){
+      return this.base
+    }else if(this.exp.toString()=="0"){
+      return M.NumberBlock.one
+    }
+    return this
   }
 }
 M.operators.Pow = Pow

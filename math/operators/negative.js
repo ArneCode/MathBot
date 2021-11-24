@@ -1,17 +1,17 @@
 import { OneSideLeftOp } from "../calcBlock.js"
 export default class Negative extends OneSideLeftOp {
-  constructor({subnodes = [], subnode = null, temp = false } = {}) {
+  constructor({ subnodes = [], subnode = null, temp = false } = {}) {
     super({ priority: 1 })
     this.temp = temp
     this.isNegative = true
     if (temp) {
       return
     }
-    if(subnodes.length>0){
-      if(subnodes.length!=1){
+    if (subnodes.length > 0) {
+      if (subnodes.length != 1) {
         throw new Error("look here")
       }
-      subnode=subnodes[0]
+      subnode = subnodes[0]
     }
     while (subnode.isGroup) {
       subnode = subnode.subnode
@@ -19,8 +19,11 @@ export default class Negative extends OneSideLeftOp {
     this.subnode = subnode
     this.type = "negator"
   }
-  get subnodes(){
+  get subnodes() {
     return [this.subnode]
+  }
+  set subnodes(nodes) {
+    this.subnode = nodes[0]
   }
   toString() {
     let { subnode } = this
@@ -38,11 +41,11 @@ export default class Negative extends OneSideLeftOp {
       return "-" + subnode.toLatex()
     }
   }
-  reduceGroups(){
-    if(this.subnode.subnodes){
-      this.subnode=this.subnode.reduceGroups()
+  reduceGroups() {
+    if (this.subnode.subnodes) {
+      this.subnode = this.subnode.reduceGroups()
     }
     return this
   }
 }
-M.operators.Negative=Negative
+M.operators.Negative = Negative

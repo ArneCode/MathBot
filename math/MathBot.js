@@ -9,9 +9,47 @@ M.latex_to_text = function (latex) {
     text = text.replace(/\\(left|right)([\[\]()])/g, "$2")
     text = text.replace(/\\cdot/g, "*")
     text = text.replace(/\^\{([^{}]*)\}/g, "^($1)")
-    text=text.replace(/\\sqrt\[([^[\]]*)\]{([^{}]*)}/g,"($1) °§root§° ($2)")
-    text=text.replace(/\\sqrt{([^{}]*)}/g,"2 °§root§° ($1)")
+    text = text.replace(/\\sqrt\[([^[\]]*)\]{([^{}]*)}/g, "($1) °§root§° ($2)")
+    text = text.replace(/\\sqrt{([^{}]*)}/g, "2 °§root§° ($1)")
   }
   console.log(text)
   return text
+}
+M.findSharedInArrs = function (arrs, { extractNums = false } = {}) { //only works with MathBlock Objects
+  console.log("arrs:", arrs)
+  let sharedElts = arrs.shift()
+  let nums = []
+  for (let arr of arrs) {
+    for (let i = 0; i < sharedElts.length; i++) {
+      let maybe_shared_elt = sharedElts[i]
+      if (extractNums && maybe_shared_elt.isNumber) {
+        nums.push(maybe_shared_elt)
+        continue
+      }
+      let isShared = false
+      for (let elt of arr) {
+        if (maybe_shared_elt.isEqualTo(elt)) {
+          isShared = true
+        }
+      }
+      if (!isShared) {
+        sharedElts.splice(i, 1)
+        i--
+      }
+    }
+  }
+  return sharedElts
+}
+M.ArrsEqual=function(arrs){
+  let comp_arr=arrs.shift()
+  for(let arr of arrs){
+    for(let elt of arr){
+      for(let comp_elt of comp_arr){
+        if(!elt.isEqualTo(comp_elt)){
+          return false
+        }
+      }
+    }
+  }
+  return true
 }

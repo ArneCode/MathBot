@@ -1,8 +1,40 @@
 export class MathBlock {
-  constructor() {
-
+  constructor() { }
+  isEqualTo(other) {
+    return this.toString() == other.toString()
+  }
+  get base() {
+    return this
+  }
+  get exp() {
+    return M.NumberBlock.one
+  }
+  check() {
+    return this
+  }
+  toSingularExp() {
+    return this
+  }
+  getNumFactor(){
+    return M.NumberBlock.one
+  }
+  getFactors(){
+    return [this]
   }
 }
+/*["getFactors"].forEach(name=>{
+  MathBlock.prototype[name]=function(){
+    return [this]
+  }
+})*/
+["reduceGroups","reduceNumbers","check"].forEach(name=>{
+  MathBlock.prototype[name]=function(){
+    if (this.subnodes) {
+      this.subnodes = this.subnodes.reduce((acc, node) => acc.concat(node[name]()), [])
+    } 
+    return this
+  }
+})
 class OpBlock extends MathBlock {
   constructor({ priority } = {}) {
     super()
@@ -77,14 +109,13 @@ export class SwapOpBlock extends OpBlock {
     return subTexts.join(this.laSign)
   }
   reduceGroups() {
-    console.log("reducing groups")
     this.subnodes = this.subnodes.map(node => node.subnodes ? node.reduceGroups() : node)
     //tells subnodes to reduce Groups in their respective subnodes if they do have any
     let group
     let others = []
     for (let i = 0; i < this.subnodes.length; i++) {
       let node = this.subnodes[i]
-      if (node.priority<this.priority) {
+      if (node.priority < this.priority) {
         group = node
         others = this.subnodes.slice(0, i).concat(this.subnodes.slice(i + 1))
         break;
@@ -97,12 +128,12 @@ export class SwapOpBlock extends OpBlock {
       let nNode = new this.constructor({ subnodes: [group].concat(others) })
       return nNode.reduceGroups()
     } else {
-      let nNodes=[]
-      for(let node of group.subnodes){
-        let nNode = new this.constructor({subnodes: [node].concat(others)})
+      let nNodes = []
+      for (let node of group.subnodes) {
+        let nNode = new this.constructor({ subnodes: [node].concat(others) })
         nNodes.push(nNode)
       }
-      let nNode = new group.constructor({subnodes:nNodes})
+      let nNode = new group.constructor({ subnodes: nNodes })
       return nNode.reduceGroups()
     }
   }
@@ -120,7 +151,13 @@ export class TwoSideOp extends FixOpBlock {
     this.sign = sign
     this.left = left
     this.right = right
-    this.subnodes = [left, right]
+  }
+  get subnodes() {
+    return [this.left, this.right]
+  }
+  set subnodes(nodes) {
+    this.left = nodes[0]
+    this.right = nodes[1]
   }
   get leftLatex() {
     let node = this.left
@@ -179,5 +216,11 @@ export class TransformBlock extends SingleBlock {
   constructor() {
     super()
     this.isTransformer = true
+  }
+}
+export class ValueBlock extends SingleBlock {
+  constructor() {
+    super()
+    this.isValueBlock = true
   }
 }

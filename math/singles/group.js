@@ -9,6 +9,9 @@ export default class Group extends SingleBlock {
   get subnodes() {
     return [this.subnode]
   }
+  set subnodes(nodes) {
+    this.subnode = nodes[0]
+  }
   toString() {
     return "(" + this.subnode.toString() + ")"
   }
@@ -19,7 +22,7 @@ export default class Group extends SingleBlock {
     if (this.subnode.subnodes) {
       this.subnode = this.subnode.reduceGroups()
     }
-    if(this.subnode.isSingle){
+    if (this.subnode.isSingle) {
       return this.subnode
     }
     return this
