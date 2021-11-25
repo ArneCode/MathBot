@@ -40,15 +40,26 @@ M.findSharedInArrs = function (arrs, { extractNums = false } = {}) { //only work
   }
   return sharedElts
 }
-M.ArrsEqual=function(arrs){
-  let comp_arr=arrs.shift()
-  for(let arr of arrs){
-    for(let elt of arr){
-      for(let comp_elt of comp_arr){
-        if(!elt.isEqualTo(comp_elt)){
-          return false
+M.ArrsEqual = function (arrs) {
+  let comp_arr = arrs.shift()
+  for (let arr of arrs) {
+    arr = [...arr]
+    for (let comp_elt of comp_arr) {
+      let eltInArr = false
+      for (let elt_idx = 0; elt_idx < arr.length; elt_idx++) {
+        let elt = arr[elt_idx]
+        if (elt.isEqualTo(comp_elt)) {
+          eltInArr = true
+          arr.splice(elt_idx, 1)
+          break;
         }
       }
+      if (!eltInArr) {
+        return false
+      }
+    }
+    if(arr.length>0){
+      return false
     }
   }
   return true

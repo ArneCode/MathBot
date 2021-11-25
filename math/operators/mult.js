@@ -6,6 +6,7 @@ export default class Mult extends SwapOpBlock {
       return
     }
     if (subnodes.length < 2) {
+      console.log(subnodes)
       throw new SyntaxError("there need to be at least two elements in a multiplication chain")
     }
     super({ sign: "*", priority: 2, subnodes, laSign: "\\cdot " })
@@ -15,11 +16,11 @@ export default class Mult extends SwapOpBlock {
       return factors.concat(node.getFactors())
     }, [])
   }
-  getNumFactor(){
-    let numFactor=M.NumberBlock.one
-    for(let node of this.subnodes){
-      if(node.isNumber){
-        numFactor=numFactor.mult(node)
+  getNumFactor() {
+    let numFactor = M.NumberBlock.one
+    for (let node of this.subnodes) {
+      if (node.isNumber) {
+        numFactor = numFactor.mult(node)
       }
     }
     return numFactor
@@ -35,17 +36,10 @@ export default class Mult extends SwapOpBlock {
   }
   reduceNumbers() {
     let factors = this.getFactors()
-    let factorList=[]
-    let shared_Nums = []
-    const ONE=M.NumberBlock.one
+    let factorList = []
+    const ONE = M.NumberBlock.one
     for (let idx_factor = 0; idx_factor < factors.length; idx_factor++) {
       let factor = factors[idx_factor]
-      if (factor.isNumber) {
-        shared_Nums.push(factor)
-        factors.splice(idx_factor, 1)
-        idx_factor--
-        continue;
-      }
       let exps = [factor.exp]
       for (let idx_other = idx_factor + 1; idx_other < factors.length; idx_other++) {
         let other = factors[idx_other]
@@ -69,21 +63,20 @@ export default class Mult extends SwapOpBlock {
         }
       }
       let exp = new M.operators.Plus({ subnodes: exps })
-      exp = exp.check()
-      let pow = new M.operators.Pow({ left: factor, right: exp ,checkSingles:false}).check()
+      exp = exp.check().reduceNumbers()
+      let pow = new M.operators.Pow({ left: factor, right: exp, checkSingles: false }).check()
       factorList.push(pow)
     }
-    let numFactor = M.NumberBlock.mult(shared_Nums)
+    let numFactor = this.getNumFactor()
     if (numFactor.toString() != "1") {
       factorList.unshift(numFactor)
     }
-    let product
     if (factorList.length == 0) {
-      return new M.NumberBlock({ n: 1 })
+      return numFactor
     } else if (factorList.length == 1) {
-      return factorList[0]
+      return factorList[0].check()
     } else {
-      return new Mult({ subnodes: factorList })
+      return new Mult({ subnodes: factorList }).check()
     }
   }
 }

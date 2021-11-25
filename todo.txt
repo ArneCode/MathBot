@@ -1,0 +1,1 @@
+bug when a^2\cdot 1

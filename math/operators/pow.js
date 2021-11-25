@@ -21,10 +21,10 @@ export default class Pow extends TwoSideOp {
     }
     super({ sign: "^", priority: 4, left, right })
   }
-  get base(){
+  get base() {
     return this.left
   }
-  get exp(){
+  get exp() {
     return this.right
   }
   toString() {
@@ -35,7 +35,11 @@ export default class Pow extends TwoSideOp {
   }
   toSingularExp() {
     let { exp } = this
+    console.log(exp)
+    exp = exp.reduceNumbers()
+    console.log(exp)
     if (exp.isNumber) {
+      console.log("isNum")
       let factors = []
       let n
       for (n = exp.toNumber(); n >= 1; n--) {
@@ -46,14 +50,16 @@ export default class Pow extends TwoSideOp {
         let rationalExp = new M.singles.NumberBlock({ n })
         factors.push(new Pow({ left: this.base, right: rationalExp, checkSingles: false }))
       }
+      console.log(factors)
       return new M.operators.Mult({ subnodes: factors })
     }
+    return this
   }
-  check(){
+  check() {
     super.check()
-    if(this.exp.toString()=="1"){
+    if (this.exp.toString() == "1") {
       return this.base
-    }else if(this.exp.toString()=="0"){
+    } else if (this.exp.toString() == "0") {
       return M.NumberBlock.one
     }
     return this
