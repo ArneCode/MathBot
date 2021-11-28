@@ -20,6 +20,7 @@ export default class Pow extends TwoSideOp {
       console.log({ left, right }, e)
     }
     super({ sign: "^", priority: 4, left, right })
+    this.isPow = true
   }
   get base() {
     return this.left

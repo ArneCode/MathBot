@@ -109,8 +109,7 @@ export class SwapOpBlock extends OpBlock {
     return subTexts.join(this.laSign)
   }
   reduceGroups() {
-    this.subnodes = this.subnodes.map(node => node.subnodes ? node.reduceGroups() : node)
-    //tells subnodes to reduce Groups in their respective subnodes if they do have any
+    super.reduceGroups()
     let group
     let others = []
     for (let i = 0; i < this.subnodes.length; i++) {
@@ -126,7 +125,8 @@ export class SwapOpBlock extends OpBlock {
     }
     if (group.isSingle || group.priority >= this.priority) {
       let nNode = new this.constructor({ subnodes: [group].concat(others) })
-      return nNode.reduceGroups()
+      nNode=nNode.reduceGroups()
+      return nNode.check()
     } else {
       let nNodes = []
       for (let node of group.subnodes) {
@@ -134,7 +134,8 @@ export class SwapOpBlock extends OpBlock {
         nNodes.push(nNode)
       }
       let nNode = new group.constructor({ subnodes: nNodes })
-      return nNode.reduceGroups()
+      nNode=nNode.reduceGroups()
+      return nNode.check()
     }
   }
 }

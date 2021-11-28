@@ -1,3 +1,3 @@
 setTimeout(()=>{
-  //console.log(M.parse("2*3*a").reduceNumbers())
+  console.log(M.parse("a^2*1").check().toString())
 },1000)

@@ -41,6 +41,10 @@ function handleEquationSubmit() {
     throw err
   }
   //console.log(node)
+  //node=node.reduceGroups()
+  //node=node.toSingularExp()
+  //node=node.reduceGroups()
+  node = node.reduceNumbers()
   node = node.reduceNumbers()
   //console.log(node)
   equationResult.innerHTML = node.toLatex()
