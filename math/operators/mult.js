@@ -36,97 +36,51 @@ export default class Mult extends SwapOpBlock {
     return this
   }
   reduceNumbers() {
+    super.reduceNumbers()
     let factors = this.getFactors()
+    //console.log("factors:",factors.map(fac=>fac.toString()))
     let factorList = []
     const ONE = M.NumberBlock.one
     for (let idx_factor = 0; idx_factor < factors.length; idx_factor++) {
       let factor = factors[idx_factor]
-      let nodesWhereFacEq = [factor]
+      let exps = [factor.exp]
       for (let idx_other = idx_factor + 1; idx_other < factors.length; idx_other++) {
         let other = factors[idx_other]
-        let addOther = () => {
-          nodesWhereFacEq.push(other)
+        //console.log(other.toString(),exps)
+        let isShared = false
+        let remove_other = () => {
           factors.splice(idx_other, 1)
           idx_other--
         }
-        let isShared = false
-        let _factor = factor
-        let _other = other
-        let factorPowStack = [factor]
-        let otherPowStack = [other]
-        do {
-          if (_factor.isEqualTo(other)) {
-            isShared = true
-            factor = _factor
-            break;
-          }
-          _factor = _factor.base
-          factorPowStack.push(_factor)
-        } while (_factor.isPow)
-        if (isShared) {
-          addOther()
-          continue;
-        }
-        do {
-          if (_other.isEqualTo(factor)) {
-            isShared = true
-            break;
-          }
-          _other = _other.base
-          otherPowStack.push()
-        } while (_other.isPow)
-        if (isShared) {
-          addOther()
-          continue;
-        }
-        if (_factor.isEqualTo(_other)) {
-          let pFactor, pOther
-          while (_factor && _other) {
-            pFactor = _factor
-            pOther = _other
-            if (!_factor.isEqualTo(_other)) {
-              break;
-            }
-            _factor = factorPowStack.pop()
-            _other = otherPowStack.pop()
-          }
-          factor = pFactor
-          addOther()
+        if (factor.base.isEqualTo(other)) {
+          exps.push(other.exp)
+          remove_other()
+        } else if (other.base.isEqualTo(factor)) {
+          exps.push(other.exp)
+          factor = other.base
+          remove_other()
+        } else if (factor.base.isEqualTo(other.base)) {
+          exps.push(other.exp)
+          remove_other()
         }
       }
-      let exps=[]
-      for(let node of nodesWhereFacEq){
-        let exps_reversed=[]
-        while(!node.isEqualTo(factor)){
-          if(!node.isPow){
-            throw new Error("Something went wrong, internal error")
-          }
-          exps_reversed.push(node.exp)
-          node=node.base
-        }
-        let exp=exps_reversed.pop()
-        for(let expPart of exps_reversed){
-          exp=new M.operators.Pow({left:exp,right:expPart,checkSingles:false})
-        }
-        exps.push(exp)
-      }
-      console.log("exps:",exps)
       let exp = new M.operators.Plus({ subnodes: exps })
-      exp = exp.check().reduceNumbers()
-      let pow = new M.operators.Pow({ left: factor, right: exp, checkSingles: false }).check()
+      exp = exp.reduceNumbers().check()
+      let pow = new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }).check()
       factorList.push(pow)
     }
-    let numFactor = this.getNumFactor()
+    let numFactor = this.getNumFactor()//M.NumberBlock.mult(shared_Nums)
     if (numFactor.toString() != "1") {
       factorList.unshift(numFactor)
     }
+    let product
     if (factorList.length == 0) {
-      return numFactor
+      return new M.NumberBlock({ n: 1 })
     } else if (factorList.length == 1) {
-      return factorList[0].check()
+      return factorList[0]
     } else {
-      return new Mult({ subnodes: factorList }).check()
+      return new Mult({ subnodes: factorList })
     }
   }
 }
-M.operators.Mult = Mult
+  M.operators.Mult = Mult
