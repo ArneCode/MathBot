@@ -1,0 +1,3 @@
+//names and their meaning
+Forms: 
+  -polynomial: a1x^1+a2x^2+a3x^...

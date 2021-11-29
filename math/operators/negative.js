@@ -42,10 +42,7 @@ export default class Negative extends OneSideLeftOp {
     }
   }
   reduceGroups() {
-    if (this.subnode.subnodes) {
-      this.subnode = this.subnode.reduceGroups()
-    }
-    return this
+    return new Negative({ subnode: this.subnode.reduceGroups() })
   }
 }
 M.operators.Negative = Negative

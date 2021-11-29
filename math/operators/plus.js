@@ -8,19 +8,19 @@ export default class Plus extends SwapOpBlock {
     super({ sign: "+", priority: 0, subnodes })
   }
   check() {
-    this.subnodes = this.subnodes.filter(node => node.toString() != "0")
-    if (this.subnodes.length == 1) {
+    let subnodes = this.subnodes.filter(node => node.toString() != "0")
+    if (subnodes.length == 1) {
       return this.subnodes[0]
     }
-    if (this.subnodes.length == 0) {
+    if (subnodes.length == 0) {
       return M.NumberBlock.zero
     }
-    return this
+    return new Plus({subnodes})
   }
   reduceNumbers() {
-    super.reduceNumbers()
+    let obj=super.reduceNumbers()
     let nSubNodes = []
-    let subnodes = [...this.subnodes]
+    let subnodes = [...obj.subnodes]
     for (let idx_node = 0; idx_node < subnodes.length; idx_node++) {
       let node = subnodes[idx_node]
       let nodeFactors = node.getFactors()

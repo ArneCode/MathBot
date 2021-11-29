@@ -15,11 +15,23 @@ export class MathBlock {
   toSingularExp() {
     return this
   }
-  getNumFactor(){
+  getNumFactor() {
     return M.NumberBlock.one
   }
-  getFactors(){
+  getFactors() {
     return [this]
+  }
+  toForm({ form, targetVar }) {
+    if (!this.subnodes) {
+      return this
+    }
+    let subnodes = this.subnodes.map(node => node.toForm({ form, targetVar }))
+    let obj = this.constructor({ subnodes })
+    let funcName = `to${form}Form`
+    if (obj[funcName]) {
+      return obj[funcName]({ targetVar })
+    }
+    return obj
   }
 }
 /*["getFactors"].forEach(name=>{
@@ -27,11 +39,12 @@ export class MathBlock {
     return [this]
   }
 })*/
-["reduceGroups","reduceNumbers","check"].forEach(name=>{
-  MathBlock.prototype[name]=function(){
+["reduceGroups", "reduceNumbers", "check","reduceFactors"].forEach(name => {
+  MathBlock.prototype[name] = function () {
     if (this.subnodes) {
-      this.subnodes = this.subnodes.reduce((acc, node) => acc.concat(node[name]()), [])
-    } 
+      let subnodes = this.subnodes.map(node => node[name]())
+      return new this.constructor({ subnodes })
+    }
     return this
   }
 })
@@ -109,32 +122,32 @@ export class SwapOpBlock extends OpBlock {
     return subTexts.join(this.laSign)
   }
   reduceGroups() {
-    super.reduceGroups()
+    let obj = super.reduceGroups()
     let group
     let others = []
-    for (let i = 0; i < this.subnodes.length; i++) {
-      let node = this.subnodes[i]
-      if (node.priority < this.priority) {
+    for (let i = 0; i < obj.subnodes.length; i++) {
+      let node = obj.subnodes[i]
+      if (node.priority < obj.priority) {
         group = node
-        others = this.subnodes.slice(0, i).concat(this.subnodes.slice(i + 1))
+        others = obj.subnodes.slice(0, i).concat(obj.subnodes.slice(i + 1))
         break;
       }
     }
     if (!group) {
-      return this
+      return obj
     }
-    if (group.isSingle || group.priority >= this.priority) {
-      let nNode = new this.constructor({ subnodes: [group].concat(others) })
-      nNode=nNode.reduceGroups()
+    if (group.isSingle || group.priority >= obj.priority) {
+      let nNode = new obj.constructor({ subnodes: [group].concat(others) })
+      nNode = nNode.reduceGroups()
       return nNode.check()
     } else {
       let nNodes = []
       for (let node of group.subnodes) {
-        let nNode = new this.constructor({ subnodes: [node].concat(others) })
+        let nNode = new obj.constructor({ subnodes: [node].concat(others) })
         nNodes.push(nNode)
       }
       let nNode = new group.constructor({ subnodes: nNodes })
-      nNode=nNode.reduceGroups()
+      nNode = nNode.reduceGroups()
       return nNode.check()
     }
   }

@@ -1,11 +1,11 @@
 import { SwapOpBlock } from "../calcBlock.js"
 export default class Mult extends SwapOpBlock {
-  constructor({ subnodes = [], temp = false } = {}) {
+  constructor({ subnodes = [], temp = false, checkLength = true } = {}) {
     if (temp) {
       super({ sign: "*", priority: 2, subnodes: [], temp })
       return
     }
-    if (subnodes.length < 2) {
+    if (subnodes.length < 2 && checkLength) {
       console.log(subnodes)
       throw new SyntaxError("there need to be at least two elements in a multiplication chain")
     }
@@ -26,21 +26,29 @@ export default class Mult extends SwapOpBlock {
     return numFactor
   }
   check() {
-    this.subnodes = this.subnodes.filter(node => node.toString() != "1")
-    if (this.subnodes.length == 1) {
-      return this.subnodes[0]
+    let subnodes = this.subnodes.filter(node => !node.isOne)
+    if (subnodes.length == 1) {
+      return subnodes[0]
     }
-    if (this.subnodes.length == 0) {
-      return new M.NumberBlock("1")
+    if (subnodes.length == 0) {
+      return new M.NumberBlock.one
     }
-    return this
+    if (subnodes.some(node => node.isZero)) {
+      return new M.NumberBlock.zero
+    }
+    return new Mult({ subnodes })
   }
   reduceNumbers() {
-    super.reduceNumbers()
-    let factors = this.getFactors()
+    let obj = super.reduceNumbers()
+    let num = obj.getNumFactor()
+    let factors = obj.getFactors()
+    return new Mult({ subnodes: [num, ...factors], checkLength: false }).check()
+  }
+  reduceFactors() {
+    let obj = super.reduceNumbers()
+    let factors = obj.getFactors()
     //console.log("factors:",factors.map(fac=>fac.toString()))
     let factorList = []
-    const ONE = M.NumberBlock.one
     for (let idx_factor = 0; idx_factor < factors.length; idx_factor++) {
       let factor = factors[idx_factor]
       let exps = [factor.exp]
@@ -69,7 +77,7 @@ export default class Mult extends SwapOpBlock {
       let pow = new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }).check()
       factorList.push(pow)
     }
-    let numFactor = this.getNumFactor()//M.NumberBlock.mult(shared_Nums)
+    let numFactor = obj.getNumFactor()//M.NumberBlock.mult(shared_Nums)
     if (numFactor.toString() != "1") {
       factorList.unshift(numFactor)
     }
@@ -82,5 +90,8 @@ export default class Mult extends SwapOpBlock {
       return new Mult({ subnodes: factorList })
     }
   }
+  toPolynomialForm({ targetVar }) {
+    let obj = this.reduceNumbers()
+  }
 }
-  M.operators.Mult = Mult
+M.operators.Mult = Mult

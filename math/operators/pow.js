@@ -1,14 +1,17 @@
 import { TwoSideOp } from "../calcBlock.js"
 export default class Pow extends TwoSideOp {
-  constructor({ left, right, temp = false, checkSingles = true } = {}) {
+  constructor({ left, right, subnodes = [], temp = false, checkSingles = true } = {}) {
     //if temp is true, then the Object is just a placeholder and doesnt hold any subnodes yet
+    left = left || subnodes[0]
+    right = right || subnodes[1]
     if (temp) {
       super({ sign: "^", priority: 4, left: {}, right: {}, temp })
       return
     }
-    if ((!left.isSingle || !right.isSingle) && checkSingles) {
+    /*if ((!left.isSingle || !right.isSingle) && checkSingles) {
+      console.log({left,right})
       throw new Error("Blocks on both sides of '^' must be singles")
-    }
+    }*/
     try {
       while (left.isGroup) {
         left = left.subnode
@@ -34,36 +37,31 @@ export default class Pow extends TwoSideOp {
   toLatex() {
     return this.leftLatex + "^{" + this.right.toLatex() + "}"
   }
-  toSingularExp() {
+  expToMult() {
     let { exp } = this
-    console.log(exp)
     exp = exp.reduceNumbers()
-    console.log(exp)
     if (exp.isNumber) {
-      console.log("isNum")
       let factors = []
       let n
       for (n = exp.toNumber(); n >= 1; n--) {
         factors.push(this.base)
       }
       if (n > 0) {
-        console.log("n:", n)
         let rationalExp = new M.singles.NumberBlock({ n })
         factors.push(new Pow({ left: this.base, right: rationalExp, checkSingles: false }))
       }
-      console.log(factors)
       return new M.operators.Mult({ subnodes: factors })
     }
     return this
   }
   check() {
-    super.check()
-    if (this.exp.toString() == "1") {
-      return this.base
-    } else if (this.exp.toString() == "0") {
+    let obj = super.check()
+    if (obj.exp.isOne) {
+      return obj.base
+    } else if (obj.exp.isZero) {
       return M.NumberBlock.one
     }
-    return this
+    return obj
   }
 }
 M.operators.Pow = Pow

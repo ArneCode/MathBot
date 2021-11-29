@@ -42,9 +42,10 @@ function handleEquationSubmit() {
   }
   //console.log(node)
   //node=node.reduceGroups()
-  //node=node.toSingularExp()
-  //node=node.reduceGroups()
-  //node = node.reduceNumbers()
+  node=node.expToMult()
+  node=node.reduceGroups()
+  node=node.reduceFactors()
+  node = node.reduceNumbers()
   //node = node.reduceNumbers()
   //console.log(node)
   equationResult.innerHTML = node.toLatex()

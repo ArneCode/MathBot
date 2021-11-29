@@ -19,13 +19,10 @@ export default class Group extends SingleBlock {
     return "\\left(" + this.subnode.toString() + "\\right)"
   }
   reduceGroups() {
-    if (this.subnode.subnodes) {
-      this.subnode = this.subnode.reduceGroups()
-    }
     if (this.subnode.isSingle) {
       return this.subnode
     }
-    return this
+    return new Group(this.subnode.reduceGroups())
   }
 }
 M.singles.Group = Group
