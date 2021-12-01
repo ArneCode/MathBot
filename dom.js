@@ -40,14 +40,7 @@ function handleEquationSubmit() {
   } catch (err) {
     throw err
   }
-  //console.log(node)
-  //node=node.reduceGroups()
-  node=node.expToMult()
-  node=node.reduceGroups()
-  node=node.reduceFactors()
-  node = node.reduceNumbers()
-  //node = node.reduceNumbers()
-  //console.log(node)
+  node = node.toForm({form:"Exp"})
   equationResult.innerHTML = node.toLatex()
   //console.log(equationResult.innerHTML)
   MQ.StaticMath(equationResult)

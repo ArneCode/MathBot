@@ -6,6 +6,7 @@ export default class Plus extends SwapOpBlock {
       return
     }
     super({ sign: "+", priority: 0, subnodes })
+    this.isPlus = true
   }
   check() {
     let subnodes = this.subnodes.filter(node => node.toString() != "0")
@@ -15,10 +16,10 @@ export default class Plus extends SwapOpBlock {
     if (subnodes.length == 0) {
       return M.NumberBlock.zero
     }
-    return new Plus({subnodes})
+    return new Plus({ subnodes })
   }
   reduceNumbers() {
-    let obj=super.reduceNumbers()
+    let obj = super.reduceNumbers()
     let nSubNodes = []
     let subnodes = [...obj.subnodes]
     for (let idx_node = 0; idx_node < subnodes.length; idx_node++) {
@@ -31,7 +32,7 @@ export default class Plus extends SwapOpBlock {
         let otherFactors = other.getFactors()
         if (M.ArrsEqual([nodeFactors, otherFactors])) {
           nums.push(other.getNumFactor())
-          subnodes.splice(idx_other,1)
+          subnodes.splice(idx_other, 1)
           idx_other--
         }
       }

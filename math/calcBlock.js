@@ -1,5 +1,7 @@
 export class MathBlock {
-  constructor() { }
+  constructor() {
+    this.isMathBlock = true
+  }
   isEqualTo(other) {
     return this.toString() == other.toString()
   }
@@ -26,7 +28,7 @@ export class MathBlock {
       return this
     }
     let subnodes = this.subnodes.map(node => node.toForm({ form, targetVar }))
-    let obj = this.constructor({ subnodes })
+    let obj = new this.constructor({ subnodes })
     let funcName = `to${form}Form`
     if (obj[funcName]) {
       return obj[funcName]({ targetVar })
@@ -34,12 +36,7 @@ export class MathBlock {
     return obj
   }
 }
-/*["getFactors"].forEach(name=>{
-  MathBlock.prototype[name]=function(){
-    return [this]
-  }
-})*/
-["reduceGroups", "reduceNumbers", "check","reduceFactors"].forEach(name => {
+["reduceGroups", "reduceNumbers", "check", "reduceFactors", "reduceNonValExps", "expandBases"].forEach(name => {
   MathBlock.prototype[name] = function () {
     if (this.subnodes) {
       let subnodes = this.subnodes.map(node => node[name]())

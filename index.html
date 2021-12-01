@@ -1,29 +1,38 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
 	<title>repl.it</title>
 	<link href="style.css" rel="stylesheet" type="text/css" />
-  <!--Decimal js-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/9.0.0/decimal.min.js" integrity="sha512-zPQm8HS4Phjo9pUbbk+HPH3rSWu5H03NFvBpPf6D9EU2xasj0ZxhYAc/lvv/HVDWMSE1Autj19i6nZOfiVQbFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<!--Decimal js-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/9.0.0/decimal.min.js" integrity="sha512-zPQm8HS4Phjo9pUbbk+HPH3rSWu5H03NFvBpPf6D9EU2xasj0ZxhYAc/lvv/HVDWMSE1Autj19i6nZOfiVQbFQ=="
+	 crossorigin="anonymous" referrerpolicy="no-referrer">
+
 	</script>
-  	<link rel="stylesheet" type="text/css" href="mathquill/mathquill.css">
-    	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	</script>
+	<link rel="stylesheet" type="text/css" href="mathquill/mathquill.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js">
+
+	</script>
 </head>
 
 <body>
-    <script src="mathquill/mathquill.min.js"></script>
-      <script>
-let MQ = MathQuill.getInterface(2);
-</script>
+	<script src="mathquill/mathquill.min.js">
+
+	</script>
+	<script>
+		let MQ = MathQuill.getInterface(2);
+	</script>
 	<div id="equationInput"></div>
-  <br>
+	<br>
   <div id="equationResult"></div>
 	<script src="useful.js" type=""></script>
 	<script src="dom.js" type=""></script>
 	<script src="script.js" type=""></script>
 	<script src="math/MathBot.js" type=""></script>
+  <script src="math/MathPaths.js" type="module"></script>
 	<script src="math/calcBlock.js" type="module"></script>
 	<script src="math/singles/group.js" type="module"></script>
 	<script src="math/singles/number.js" type="module"></script>

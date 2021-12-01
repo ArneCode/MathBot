@@ -32,7 +32,7 @@ export default class Pow extends TwoSideOp {
     return this.right
   }
   toString() {
-    return this.leftLatex + "^{" + this.right.toString() + "}"
+    return "("+this.left.toString() + ")^(" + this.right.toString() + ")"
   }
   toLatex() {
     return this.leftLatex + "^{" + this.right.toLatex() + "}"
@@ -54,6 +54,22 @@ export default class Pow extends TwoSideOp {
     }
     return this
   }
+  reduceNonValExps() {
+    if (this.exp.isValueBlock) {
+      return this
+    }
+    let exp = this.exp.reduceNumbers().check()
+    if (exp.isValueBlock) {
+      return new Pow({ left: this.left, right: exp })
+    }
+    if (exp.isPlus) {
+      let nNodes = this.exp.subnodes.map(node => new Pow({ left: this.base, right: node }))
+      let mult = new M.operators.Mult({ subnodes: nNodes })
+      return mult.check()
+    }
+    console.log("reducing exp to singular value has failed")
+    return false
+  }
   check() {
     let obj = super.check()
     if (obj.exp.isOne) {
@@ -61,6 +77,32 @@ export default class Pow extends TwoSideOp {
     } else if (obj.exp.isZero) {
       return M.NumberBlock.one
     }
+    return obj
+  }
+  expandBases() {
+    if (this.isValueBlock) {
+      return this
+    }
+    let obj = this.reduceNumbers().check()
+    if (obj.base.isValueBlock) {
+      return new Pow({ left: obj.base, right: obj.exp })
+    }
+    if (obj.base.isPlus) {
+      obj = obj.expToMult()
+      obj = obj.reduceGroups()
+      obj = obj.reduceFactors()
+      obj = obj.reduceNumbers()
+      return obj
+    }
+  }
+  toExpForm({ targetVar }) {
+    let obj = this.reduceNumbers()
+    M.getSolutionPathGenerator({actions:[
+      obj=>obj.expandBases(),
+      obj=>obj.reduceNonValExps()
+    ]})
+    obj=obj.expandBases()
+    obj=obj.reduceNonValExps()
     return obj
   }
 }

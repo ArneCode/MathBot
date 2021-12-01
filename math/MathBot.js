@@ -58,7 +58,7 @@ M.ArrsEqual = function (arrs) {
         return false
       }
     }
-    if(arr.length>0){
+    if (arr.length > 0) {
       return false
     }
   }

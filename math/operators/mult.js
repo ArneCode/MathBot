@@ -18,7 +18,8 @@ export default class Mult extends SwapOpBlock {
   }
   getNumFactor() {
     let numFactor = M.NumberBlock.one
-    for (let node of this.subnodes) {
+    for (let i = 0; i < this.subnodes.length; i++) {
+      node = this.subnodes[i]
       if (node.isNumber) {
         numFactor = numFactor.mult(node)
       }
@@ -36,45 +37,84 @@ export default class Mult extends SwapOpBlock {
     if (subnodes.some(node => node.isZero)) {
       return new M.NumberBlock.zero
     }
-    return new Mult({ subnodes })
+    return new M.pathElt({
+      path: new Mult({ subnodes }),
+      description: "removing ones from multiplication chain"
+    })
   }
   reduceNumbers() {
-    let obj = super.reduceNumbers()
+    let path = []
+    let pathElt = super.reduceNumbers()
+    path.push(pathElt)
+    let obj = pathElt.result
     let num = obj.getNumFactor()
     let factors = obj.getFactors()
-    return new Mult({ subnodes: [num, ...factors], checkLength: false }).check()
+    path.push(new Mult({
+      subnodes: [num, ...factors],
+      checkLength: false
+    }).check())
+    return new M.pathElt({
+      path,
+      description: "multiplying numbers",
+      action: "multiplying"
+    })
   }
   reduceFactors() {
-    let obj = super.reduceNumbers()
+    let path = []
+    let pathElt = super.reduceNumbers()
+    path.push(pathElt)
+    let obj = pathElt.result
     let factors = obj.getFactors()
     //console.log("factors:",factors.map(fac=>fac.toString()))
     let factorList = []
+    let toSkip = []
+    let simultPaths = []
     for (let idx_factor = 0; idx_factor < factors.length; idx_factor++) {
+      if (toSkip.includes(idx_factor)) {
+        continue
+      }
       let factor = factors[idx_factor]
       let exps = [factor.exp]
       for (let idx_other = idx_factor + 1; idx_other < factors.length; idx_other++) {
+        if (toSkip.includes(idx_other)) {
+          continue
+        }
         let other = factors[idx_other]
         //console.log(other.toString(),exps)
         let isShared = false
-        let remove_other = () => {
-          factors.splice(idx_other, 1)
-          idx_other--
-        }
         if (factor.base.isEqualTo(other)) {
           exps.push(other.exp)
-          remove_other()
+          toSkip.push(idx_other)
         } else if (other.base.isEqualTo(factor)) {
           exps.push(other.exp)
           factor = other.base
-          remove_other()
+          toSkip.push(idx_other)
         } else if (factor.base.isEqualTo(other.base)) {
           exps.push(other.exp)
-          remove_other()
+          toSkip.push(idx_other)
         }
       }
       let exp = new M.operators.Plus({ subnodes: exps })
-      exp = exp.reduceNumbers().check()
-      let pow = new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }).check()
+      let expPath = [exp]
+      pathElt = exp.reduceNumbers()
+      expPath.push(pathElt)
+      exp = pathElt.result
+      pathElt = exp.check()
+      expPath.push(pathElt)
+      path.push(new M.PathElt({
+        path: expPath,
+        parentObj: obj,
+        parentSubPos: idx_factor,
+        description: "adding the exponents of factors with the same base"
+      }))
+      let powPath = []
+      pathElt = new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false })
+      powPath.push(pathElt)
+      pathElt = pow.check()
+      powPath.push(pathElt)
+      path.push(new M.makePathElt({
+        path: powPath
+      }))
       factorList.push(pow)
     }
     let numFactor = obj.getNumFactor()//M.NumberBlock.mult(shared_Nums)
@@ -90,8 +130,14 @@ export default class Mult extends SwapOpBlock {
       return new Mult({ subnodes: factorList })
     }
   }
-  toPolynomialForm({ targetVar }) {
+  toExpForm({ targetVar }) {
     let obj = this.reduceNumbers()
+    obj = obj.reduceNumbers()
+    obj = obj.reduceGroups()
+    obj = obj.reduceFactors()
+    obj = obj.reduceNonValExps()
+    obj = obj.reduceNumbers()
+    return obj
   }
 }
 M.operators.Mult = Mult

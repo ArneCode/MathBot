@@ -41,3 +41,6 @@ Array.prototype.eachWeach = function (f) {
   }
   return nlist
 }
+function isGenerator(fn){
+  return ['GeneratorFunction', 'AsyncGeneratorFunction'].includes(fn.constructor.name)
+}
