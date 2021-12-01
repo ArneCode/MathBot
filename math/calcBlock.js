@@ -1,6 +1,7 @@
 export class MathBlock {
   constructor() {
     this.isMathBlock = true
+    this.result = this
   }
   isEqualTo(other) {
     return this.toString() == other.toString()

@@ -1,5 +1,5 @@
-class PathElt {
-  constructor({ path, parentObj = null, parentSubPos = null, description = null, action = null } = {}) {
+class CalcHistory {
+  constructor({ path = [], parentObj = null, parentSubPos = null, description = "", action = "" } = {}) {
     if (path.constructor.name == "Array") {
       this.path = path
     } else {
@@ -10,12 +10,20 @@ class PathElt {
     this.description = description
     this.action = action
   }
-  get result() {
-    if (this.path.isPathEltObj) {
-      return path.result
+  add(elt) {
+    this.path.push(elt)
+    return this.result
+  }
+  set(options) {
+    for (let key in options) {
+      if (key in this) {
+        this[key] = options[key]
+      }
     }
+  }
+  get result() {
     let lastElt = this.path[this.path.length - 1]
-    if (lastElt.isPathElt) {
+    if (lastElt.isHistory) {
       return lastElt.result
     }
     if (!lastElt.isMathBlock) {
@@ -23,21 +31,23 @@ class PathElt {
     }
     return lastElt
   }
+  //---
+  //continue working here!
+  //---
   unwrap() {
-    if (this.path.isPathEltObj) {
-      return this.path.unwrap()
-    }
     let path = []
     for (let i = 0; i < this.path.length; i++) {
       let pathElt = this.path[i]
-      if (pathElt.isPathEltObj) {
+      if (pathElt.isHistory) {
         path.push(...pathElt.unwrap())
       }
     }
     return path
   }
 }
-M.makePathElt = function (options) {
+CalcHistory.prototype.isHistory = true
+M.CalcHistory = CalcHistory
+M.makePathElt = function (options) { //has become unused, keeping it if I ever need it
   let obj
   if (options.simult) {
     obj = new SimultaniousPathElt(options)
@@ -53,17 +63,26 @@ M.makePathElt = function (options) {
     }
   })
 }
-PathElt.prototype.isPathEltObj = true
-M.PathElt = PathElt
-class SimultaniousPathElt extends PathElt {
-  constructor({ paths, resultObj, description = null, action = null } = {}) {
+class SimultHistory {
+  constructor({ paths=[], result=null, description = "", action = "" } = {}) {
     this.paths = paths
-    this.result = resultObj
-    this.resultSubPos = resultSubPos
+    this.result = result
     this.description = description
     this.action = action
   }
+  add(elt) {
+    this.paths.push(elt)
+  }
+  set(options) {
+    for (let key in options) {
+      if (key in this) {
+        this[key] = options[key]
+      }
+    }
+  }
 }
+SimultHistory.prototype.isHistory = true
+M.SimultHistory = SimultHistory
 M.getSolutionPathGenerator = function* ({ obj, actions }) {
   let objString = obj.toString()
   let prevTexts = []

@@ -19,7 +19,8 @@ export default class Plus extends SwapOpBlock {
     return new Plus({ subnodes })
   }
   reduceNumbers() {
-    let obj = super.reduceNumbers()
+    let history=new M.CalcHistory()
+    let obj = history.add(super.reduceNumbers())
     let nSubNodes = []
     let subnodes = [...obj.subnodes]
     for (let idx_node = 0; idx_node < subnodes.length; idx_node++) {
@@ -40,14 +41,17 @@ export default class Plus extends SwapOpBlock {
       if (nodeFactors.length == 0) {
         nSubNodes.push(num)
       } else {
-        nSubNodes.push(new M.operators.Mult({ subnodes: [num, ...nodeFactors] }).check().reduceNumbers())
+        nSubNodes.push(new M.operators.Mult({ subnodes: [num, ...nodeFactors] }))
       }
     }
+    let sum
     if (subnodes.length > 1) {
-      return new Plus({ subnodes: nSubNodes }).check()
+      sum = new Plus({ subnodes: nSubNodes })
     } else {
-      return nSubNodes[0].check()
+      sum = nSubNodes[0]
     }
+    history.add(sum.check())
+    return history
   }
 }
 M.operators.Plus = Plus

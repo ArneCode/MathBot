@@ -19,7 +19,7 @@ export default class Mult extends SwapOpBlock {
   getNumFactor() {
     let numFactor = M.NumberBlock.one
     for (let i = 0; i < this.subnodes.length; i++) {
-      node = this.subnodes[i]
+      let node = this.subnodes[i]
       if (node.isNumber) {
         numFactor = numFactor.mult(node)
       }
@@ -37,38 +37,33 @@ export default class Mult extends SwapOpBlock {
     if (subnodes.some(node => node.isZero)) {
       return new M.NumberBlock.zero
     }
-    return new M.pathElt({
+    return new M.CalcHistory({
       path: new Mult({ subnodes }),
       description: "removing ones from multiplication chain"
     })
   }
   reduceNumbers() {
-    let path = []
-    let pathElt = super.reduceNumbers()
-    path.push(pathElt)
-    let obj = pathElt.result
-    let num = obj.getNumFactor()
-    let factors = obj.getFactors()
-    path.push(new Mult({
-      subnodes: [num, ...factors],
-      checkLength: false
-    }).check())
-    return new M.pathElt({
-      path,
+    let history = new M.CalcHistory({
       description: "multiplying numbers",
       action: "multiplying"
     })
+    let obj = history.add(super.reduceNumbers())
+    let num = obj.getNumFactor()
+    let factors = obj.getFactors()
+    history.add(new Mult({
+      subnodes: [num, ...factors],
+      checkLength: false
+    }).check())
+    return history
   }
   reduceFactors() {
-    let path = []
-    let pathElt = super.reduceNumbers()
-    path.push(pathElt)
-    let obj = pathElt.result
+    let history = new M.CalcHistory()
+    let obj = history.add(super.reduceNumbers())
     let factors = obj.getFactors()
-    //console.log("factors:",factors.map(fac=>fac.toString()))
     let factorList = []
     let toSkip = []
-    let simultPaths = []
+    let simultHistory = new M.SimultHistory()
+    history.add(simultHistory)
     for (let idx_factor = 0; idx_factor < factors.length; idx_factor++) {
       if (toSkip.includes(idx_factor)) {
         continue
@@ -95,40 +90,35 @@ export default class Mult extends SwapOpBlock {
         }
       }
       let exp = new M.operators.Plus({ subnodes: exps })
-      let expPath = [exp]
-      pathElt = exp.reduceNumbers()
-      expPath.push(pathElt)
-      exp = pathElt.result
-      pathElt = exp.check()
-      expPath.push(pathElt)
-      path.push(new M.PathElt({
-        path: expPath,
-        parentObj: obj,
-        parentSubPos: idx_factor,
+      let expHistory = new M.CalcHistory({
+        path: [exp],
         description: "adding the exponents of factors with the same base"
-      }))
-      let powPath = []
-      pathElt = new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false })
-      powPath.push(pathElt)
-      pathElt = pow.check()
-      powPath.push(pathElt)
-      path.push(new M.makePathElt({
-        path: powPath
-      }))
+      })
+      exp = expHistory.add(exp.reduceNumbers())
+      exp = expHistory.add(exp.check())
+      let powHistory = new M.CalcHistory({ path: expHistory })
+      let pow = powHistory.add(new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }))
+      pow = powHistory.add(pow.check())
+      expHistory.set({ parentObj: pow, parentSubPos: 1 })
+      simultHistory.add(powHistory)
       factorList.push(pow)
     }
-    let numFactor = obj.getNumFactor()//M.NumberBlock.mult(shared_Nums)
+    let numFactor = obj.getNumFactor()
     if (numFactor.toString() != "1") {
       factorList.unshift(numFactor)
+      simultHistory.paths.unshift(numFactor)
     }
     let product
     if (factorList.length == 0) {
-      return new M.NumberBlock({ n: 1 })
+      product = new M.NumberBlock({ n: 1 })
     } else if (factorList.length == 1) {
-      return factorList[0]
+      product = factorList[0]
     } else {
-      return new Mult({ subnodes: factorList })
+      product = new Mult({ subnodes: factorList })
     }
+    simultHistory.result = product
+    history.add(product)
+    return history
   }
   toExpForm({ targetVar }) {
     let obj = this.reduceNumbers()
