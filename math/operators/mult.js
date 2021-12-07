@@ -99,7 +99,7 @@ export default class Mult extends SwapOpBlock {
       let powHistory = new M.CalcHistory({ path: expHistory })
       let pow = powHistory.add(new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }))
       pow = powHistory.add(pow.check())
-      expHistory.set({ parentObj: pow, parentSubPos: 1 })
+      expHistory.set({ parent: pow, subPos: 1 })
       simultHistory.add(powHistory)
       factorList.push(pow)
     }

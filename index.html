@@ -19,15 +19,26 @@
 </head>
 
 <body>
-	<script src="mathquill/mathquill.min.js">
+	<div id="mainWindow">
+		<button onclick="openWindow('settings')" class="top right">settings</button>
+		<div id="equationInput"></div>
+		<br>
+    <div id="equationResult"></div>
+  </div>
+  <div id="settingsWindow" style="display:none">
+    <button onclick="openWindow('main')" class="top right">back to main</button>
+    <h2 class="center">Settings</h2>
+    <div>
+      <label>amount of combination in step-by-step solutions:</label> <br>
+      <input type="range" min="0" max="10" step="1">
+    </div>
+  </div>
 
+	<script src="mathquill/mathquill.min.js">
 	</script>
 	<script>
 		let MQ = MathQuill.getInterface(2);
 	</script>
-	<div id="equationInput"></div>
-	<br>
-  <div id="equationResult"></div>
 	<script src="useful.js" type=""></script>
 	<script src="dom.js" type=""></script>
 	<script src="script.js" type=""></script>

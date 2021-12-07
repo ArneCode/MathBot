@@ -1,5 +1,10 @@
 let equationInput = document.getElementById("equationInput")
 let equationResult = document.getElementById("equationResult")
+let windows={}
+for(let windowName of ["settings","main"]){
+  windows[windowName]=document.getElementById(windowName+"Window")
+}
+console.log(windows)
 let equationMathField
 window.onload = function () {
   equationMathField = MQ.MathField(equationInput, {
@@ -40,8 +45,17 @@ function handleEquationSubmit() {
   } catch (err) {
     throw err
   }
-  node = node.toForm({form:"Exp"})
+  node = node.reduceNumbers().result
   equationResult.innerHTML = node.toLatex()
   //console.log(equationResult.innerHTML)
   MQ.StaticMath(equationResult)
+}
+function openWindow(name){
+  for(windowName in windows){
+    if(windowName==name){
+      windows[name].style.display="block"
+    }else{
+      windows[windowName].style.display="none"
+    }
+  }
 }

@@ -32,14 +32,15 @@ export default class Pow extends TwoSideOp {
     return this.right
   }
   toString() {
-    return "("+this.left.toString() + ")^(" + this.right.toString() + ")"
+    return "(" + this.left.toString() + ")^(" + this.right.toString() + ")"
   }
   toLatex() {
     return this.leftLatex + "^{" + this.right.toLatex() + "}"
   }
   expToMult() {
     let { exp } = this
-    exp = exp.reduceNumbers()
+    let history = new M.CalcHistory()
+    exp = history.add(exp.reduceNumbers())
     if (exp.isNumber) {
       let factors = []
       let n
@@ -50,7 +51,8 @@ export default class Pow extends TwoSideOp {
         let rationalExp = new M.singles.NumberBlock({ n })
         factors.push(new Pow({ left: this.base, right: rationalExp, checkSingles: false }))
       }
-      return new M.operators.Mult({ subnodes: factors })
+      history.add(new M.operators.Mult({ subnodes: factors }))
+      return history
     }
     return this
   }
@@ -58,51 +60,68 @@ export default class Pow extends TwoSideOp {
     if (this.exp.isValueBlock) {
       return this
     }
-    let exp = this.exp.reduceNumbers().check()
+    let history = new M.CalcHistory()
+    let exp = history.add(this.exp.reduceNumbers())
+    exp = history.add(exp.check())
     if (exp.isValueBlock) {
-      return new Pow({ left: this.left, right: exp })
+      history.add(new Pow({ left: this.left, right: exp }))
+      return history
     }
     if (exp.isPlus) {
-      let nNodes = this.exp.subnodes.map(node => new Pow({ left: this.base, right: node }))
+      let nNodes = []
+      for (let i = 0; i < exp.subnodes.length; i++) {
+        nNodes.push(new Pow({ left: this.base, right: exp.subnodes[i] }))
+      }
       let mult = new M.operators.Mult({ subnodes: nNodes })
-      return mult.check()
+      history.add(mult)
+      history.add(mult.check())
+      return history
     }
     console.log("reducing exp to singular value has failed")
     return false
   }
   check() {
-    let obj = super.check()
+    let history = new M.CalcHistory()
+    let obj = history.add(super.check())
     if (obj.exp.isOne) {
-      return obj.base
+      history.add(obj.base)
     } else if (obj.exp.isZero) {
-      return M.NumberBlock.one
+      history.add(M.NumberBlock.one)
     }
-    return obj
+    return history
   }
   expandBases() {
     if (this.isValueBlock) {
       return this
     }
-    let obj = this.reduceNumbers().check()
+    let history = new M.CalcHistory()
+    let obj = history.add(this.reduceNumbers())
+    obj = history.add(obj.check())
     if (obj.base.isValueBlock) {
-      return new Pow({ left: obj.base, right: obj.exp })
+      history.add(new Pow({ left: obj.base, right: obj.exp }))
+      return history
     }
     if (obj.base.isPlus) {
-      obj = obj.expToMult()
-      obj = obj.reduceGroups()
-      obj = obj.reduceFactors()
-      obj = obj.reduceNumbers()
-      return obj
+      obj = history.add(obj.expToMult())
+      obj = history.add(obj.reduceGroups())
+      obj = history.add(obj.reduceFactors())
+      obj = history.add(obj.reduceNumbers())
+      return history
     }
   }
   toExpForm({ targetVar }) {
-    let obj = this.reduceNumbers()
-    M.getSolutionPathGenerator({actions:[
-      obj=>obj.expandBases(),
-      obj=>obj.reduceNonValExps()
-    ]})
-    obj=obj.expandBases()
-    obj=obj.reduceNonValExps()
+    let history = new M.CalcHistory()
+    let obj = history.add(this.reduceNumbers())
+    //not jet implemented:
+    //!!!!!!!!!!!!!!!!
+    M.getSolutionPathGenerator({
+      actions: [
+        obj => obj.expandBases(),
+        obj => obj.reduceNonValExps()
+      ]
+    })
+    obj = obj.expandBases()
+    obj = obj.reduceNonValExps()
     return obj
   }
 }

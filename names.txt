@@ -1,3 +1,7 @@
 //names and their meaning
 Forms: 
   -polynomial: a1x^1+a2x^2+a3x^...
+History:
+  -importance: how important a certain step is. If added Importance of two following points in History are less than Importance specified in Setting, they will be summarized
+  -action: what is being done, following points in History with the same action will be summarized
+  description: short description of what is being done

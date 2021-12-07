@@ -28,20 +28,35 @@ export class MathBlock {
     if (!this.subnodes) {
       return this
     }
-    let subnodes = this.subnodes.map(node => node.toForm({ form, targetVar }))
-    let obj = new this.constructor({ subnodes })
-    let funcName = `to${form}Form`
-    if (obj[funcName]) {
-      return obj[funcName]({ targetVar })
+    let history = new M.CalcHistory()
+    let simultHistory = new M.SimultHistory()
+    history.add(simultHistory)
+    let subnodes = []
+    for (let i = 0; i < this.subnodes.length; i++) {
+      let node = this.subnodes[i]
+      subnodes.push(simultHistory.add(node => node.toForm({ form, targetVar })))
     }
-    return obj
+    let obj = new this.constructor({ subnodes })
+    simultHistory.result = obj
+    let funcName = `to${form}Form`
+    if (funcName in obj) {
+      history.add(obj[funcName]({ targetVar }))
+      return history
+    }
+    return simultHistory
   }
 }
 ["reduceGroups", "reduceNumbers", "check", "reduceFactors", "reduceNonValExps", "expandBases"].forEach(name => {
   MathBlock.prototype[name] = function () {
     if (this.subnodes) {
-      let subnodes = this.subnodes.map(node => node[name]())
-      return new this.constructor({ subnodes })
+      let history = new M.SimultHistory()
+      let subnodes = []
+      for (let i = 0; i < this.subnodes.length; i++) {
+        let node = this.subnodes[i]
+        subnodes.push(history.add(node[name]()))
+      }
+      history.result = new this.constructor({ subnodes })
+      return history
     }
     return this
   }
@@ -120,7 +135,8 @@ export class SwapOpBlock extends OpBlock {
     return subTexts.join(this.laSign)
   }
   reduceGroups() {
-    let obj = super.reduceGroups()
+    let history = new M.CalcHistory()
+    let obj = history.add(super.reduceGroups())
     let group
     let others = []
     for (let i = 0; i < obj.subnodes.length; i++) {
@@ -134,20 +150,21 @@ export class SwapOpBlock extends OpBlock {
     if (!group) {
       return obj
     }
+    let nNode
     if (group.isSingle || group.priority >= obj.priority) {
-      let nNode = new obj.constructor({ subnodes: [group].concat(others) })
-      nNode = nNode.reduceGroups()
-      return nNode.check()
+      nNode = new obj.constructor({ subnodes: [group].concat(others) })
     } else {
       let nNodes = []
-      for (let node of group.subnodes) {
+      for (let i = 0; i < group.subnodes.lenght; i++) {
+        node = group.subnodes[i]
         let nNode = new obj.constructor({ subnodes: [node].concat(others) })
         nNodes.push(nNode)
       }
-      let nNode = new group.constructor({ subnodes: nNodes })
-      nNode = nNode.reduceGroups()
-      return nNode.check()
+      nNode = new group.constructor({ subnodes: nNodes })
     }
+    nNode = history.add(nNode.reduceGroups())
+    history.add(nNode.check())
+    return history
   }
 }
 export class FixOpBlock extends OpBlock {
