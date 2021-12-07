@@ -2,7 +2,7 @@ M.actions={
   mult:{
     importance:1
   },
-  add:{
+  plus:{
     importance:1
   },
   div:{
@@ -10,10 +10,25 @@ M.actions={
   },
   pow:{
     importance:3
+  },
+  expandBases:{
+    importance: 5
+  },
+  expToMult:{
+    importance:1
+  },
+  check:{
+    importance:1
+  },
+  mult_out_group:{
+    importance:2
+  },
+  "-":{
+    importance:0
   }
 }
 class CalcHistory {
-  constructor({ path = [], parent = null, subPos = null, description = "", action = null } = {}) {
+  constructor({ path = [], parent = null, subPos = null, description = "", action = "" } = {}) {
     if (path.constructor.name == "Array") {
       this.path = path
     } else {
@@ -22,8 +37,10 @@ class CalcHistory {
     this.parent = parent
     this.subPos = subPos
     this.description = description
-    if(!action){
-      throw "action required"
+    if(M.actions[action]){
+      this.importance=M.actions[action].importance
+    }else{
+      throw new Error("action required for history")
     }
     this.action = action
   }
@@ -97,12 +114,14 @@ M.makePathElt = function (options) { //has become unused, keeping it if I ever n
   })
 }
 class SimultHistory {
-  constructor({ paths = [], result = null, description = "", action } = {}) {
+  constructor({ paths = [], result = null, description = "", action="-" } = {}) {
     this.paths = paths
     this.result = result
     this.description = description
-    if(!action){
-      throw "action required"
+    if(M.actions[action]){
+      this.importance=M.actions[action].importance
+    }else{
+      throw new Error("action required for history")
     }
     this.action = action
   }

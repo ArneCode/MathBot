@@ -39,13 +39,14 @@ export default class Mult extends SwapOpBlock {
     }
     return new M.CalcHistory({
       path: new Mult({ subnodes }),
-      description: "removing ones from multiplication chain"
+      description: "removing ones from multiplication chain",
+      action:"check"
     })
   }
   reduceNumbers() {
     let history = new M.CalcHistory({
       description: "multiplying numbers",
-      action: "multiplying"
+      action: "mult"
     })
     let obj = history.add(super.reduceNumbers())
     let num = obj.getNumFactor()
@@ -57,7 +58,7 @@ export default class Mult extends SwapOpBlock {
     return history
   }
   reduceFactors() {
-    let history = new M.CalcHistory()
+    let history = new M.CalcHistory({action:"mult"})
     let obj = history.add(super.reduceNumbers())
     let factors = obj.getFactors()
     let factorList = []
@@ -92,11 +93,12 @@ export default class Mult extends SwapOpBlock {
       let exp = new M.operators.Plus({ subnodes: exps })
       let expHistory = new M.CalcHistory({
         path: [exp],
-        description: "adding the exponents of factors with the same base"
+        description: "adding the exponents of factors with the same base",
+        action:"-"
       })
       exp = expHistory.add(exp.reduceNumbers())
       exp = expHistory.add(exp.check())
-      let powHistory = new M.CalcHistory({ path: expHistory })
+      let powHistory = new M.CalcHistory({ path: expHistory , action:"-"})
       let pow = powHistory.add(new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }))
       pow = powHistory.add(pow.check())
       expHistory.set({ parent: pow, subPos: 1 })

@@ -6,6 +6,9 @@ export default class Plus extends SwapOpBlock {
       return
     }
     super({ sign: "+", priority: 0, subnodes })
+    if(subnodes.length==0){
+      console.log(new Error("subnodes length 0"),this)
+    }
     this.isPlus = true
   }
   check() {
@@ -19,7 +22,7 @@ export default class Plus extends SwapOpBlock {
     return new Plus({ subnodes })
   }
   reduceNumbers() {
-    let history=new M.CalcHistory()
+    let history=new M.CalcHistory({action:"plus",description:"adding summands together"})
     let obj = history.add(super.reduceNumbers())
     let nSubNodes = []
     let subnodes = [...obj.subnodes]

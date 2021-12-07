@@ -39,7 +39,7 @@ export default class Pow extends TwoSideOp {
   }
   expToMult() {
     let { exp } = this
-    let history = new M.CalcHistory()
+    let history = new M.CalcHistory({action:"expToMult"})
     exp = history.add(exp.reduceNumbers())
     if (exp.isNumber) {
       let factors = []
@@ -81,7 +81,7 @@ export default class Pow extends TwoSideOp {
     return false
   }
   check() {
-    let history = new M.CalcHistory()
+    let history = new M.CalcHistory({action:"check"})
     let obj = history.add(super.check())
     if (obj.exp.isOne) {
       history.add(obj.base)
@@ -94,7 +94,7 @@ export default class Pow extends TwoSideOp {
     if (this.isValueBlock) {
       return this
     }
-    let history = new M.CalcHistory()
+    let history = new M.CalcHistory({action:"expandBases"})
     let obj = history.add(this.reduceNumbers())
     obj = history.add(obj.check())
     if (obj.base.isValueBlock) {
@@ -102,10 +102,15 @@ export default class Pow extends TwoSideOp {
       return history
     }
     if (obj.base.isPlus) {
+      console.log(obj.toString())
       obj = history.add(obj.expToMult())
+      console.log(obj.toString())
       obj = history.add(obj.reduceGroups())
+      console.log(obj.toString())
       obj = history.add(obj.reduceFactors())
+      console.log(obj.toString())
       obj = history.add(obj.reduceNumbers())
+      console.log(obj.toString())
       return history
     }
   }

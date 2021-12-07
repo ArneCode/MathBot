@@ -49,7 +49,7 @@ export class MathBlock {
 ["reduceGroups", "reduceNumbers", "check", "reduceFactors", "reduceNonValExps", "expandBases"].forEach(name => {
   MathBlock.prototype[name] = function () {
     if (this.subnodes) {
-      let history = new M.SimultHistory()
+      let history = new M.SimultHistory({action:"-"})
       let subnodes = []
       for (let i = 0; i < this.subnodes.length; i++) {
         let node = this.subnodes[i]
@@ -135,7 +135,7 @@ export class SwapOpBlock extends OpBlock {
     return subTexts.join(this.laSign)
   }
   reduceGroups() {
-    let history = new M.CalcHistory()
+    let history = new M.CalcHistory({action:"mult_out_group"})
     let obj = history.add(super.reduceGroups())
     let group
     let others = []
@@ -155,10 +155,10 @@ export class SwapOpBlock extends OpBlock {
       nNode = new obj.constructor({ subnodes: [group].concat(others) })
     } else {
       let nNodes = []
-      for (let i = 0; i < group.subnodes.lenght; i++) {
-        node = group.subnodes[i]
-        let nNode = new obj.constructor({ subnodes: [node].concat(others) })
-        nNodes.push(nNode)
+      for (let i = 0; i < group.subnodes.length; i++) {
+        let node = group.subnodes[i]
+        let nSubNode = new obj.constructor({ subnodes: [node].concat(others) })
+        nNodes.push(nSubNode)
       }
       nNode = new group.constructor({ subnodes: nNodes })
     }

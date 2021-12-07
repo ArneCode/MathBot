@@ -41,10 +41,13 @@ function handleEquationSubmit() {
   //console.log(latex)
   let node
   try {
-    node = M.parseLatex(latex).check()
+    node = M.parseLatex(latex).check().result
   } catch (err) {
     throw err
   }
+  node=node.expToMult().result
+  node=node.reduceGroups().result
+  node=node.reduceFactors().result
   node = node.reduceNumbers().result
   equationResult.innerHTML = node.toLatex()
   //console.log(equationResult.innerHTML)
