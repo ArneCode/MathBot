@@ -6,23 +6,28 @@ export default class Plus extends SwapOpBlock {
       return
     }
     super({ sign: "+", priority: 0, subnodes })
-    if(subnodes.length==0){
-      console.log(new Error("subnodes length 0"),this)
+    if (subnodes.length == 0) {
+      console.log(new Error("subnodes length 0"), this)
     }
     this.isPlus = true
   }
   check() {
-    let subnodes = this.subnodes.filter(node => node.toString() != "0")
+    let history = new M.CalcHistory({ action: "check" })
+    history.add(this)
+    let obj = history.add(super.check())
+    let subnodes = obj.subnodes.filter(node => node.toString() != "0")
     if (subnodes.length == 1) {
-      return this.subnodes[0]
+      history.add(this.subnodes[0])
     }
-    if (subnodes.length == 0) {
-      return M.NumberBlock.zero
+    else if (subnodes.length == 0) {
+      history.add(M.NumberBlock.zero)
+    } else {
+      history.add(new Plus({ subnodes }))
     }
-    return new Plus({ subnodes })
+    return history
   }
   reduceNumbers() {
-    let history=new M.CalcHistory({action:"plus",description:"adding summands together"})
+    let history = new M.CalcHistory({ action: "plus", description: "adding summands together" })
     let obj = history.add(super.reduceNumbers())
     let nSubNodes = []
     let subnodes = [...obj.subnodes]

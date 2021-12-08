@@ -1,30 +1,30 @@
-M.actions={
-  mult:{
-    importance:1
+M.actions = {
+  mult: {
+    importance: 1
   },
-  plus:{
-    importance:1
+  plus: {
+    importance: 1
   },
-  div:{
-    importance:2
+  div: {
+    importance: 2
   },
-  pow:{
-    importance:3
+  pow: {
+    importance: 3
   },
-  expandBases:{
+  expandBases: {
     importance: 5
   },
-  expToMult:{
-    importance:1
+  expToMult: {
+    importance: 1
   },
-  check:{
-    importance:1
+  check: {
+    importance: 1
   },
-  mult_out_group:{
-    importance:2
+  mult_out_group: {
+    importance: 2
   },
-  "-":{
-    importance:0
+  "-": {
+    importance: 0
   }
 }
 class CalcHistory {
@@ -37,9 +37,9 @@ class CalcHistory {
     this.parent = parent
     this.subPos = subPos
     this.description = description
-    if(M.actions[action]){
-      this.importance=M.actions[action].importance
-    }else{
+    if (M.actions[action]) {
+      this.importance = M.actions[action].importance
+    } else {
       throw new Error("action required for history")
     }
     this.action = action
@@ -65,62 +65,66 @@ class CalcHistory {
     }
     return lastElt
   }
-  //---
-  //continue working here!
-  //---
-  unwrap() {
+  compactify(settings = {}) {
+    let { min_importance = 0 } = settings
     let path = []
     for (let i = 0; i < this.path.length; i++) {
       let pathElt = this.path[i]
       if (pathElt.isHistory) {
-        console.log("pathElt:", pathElt)
-        path.push(...pathElt.unwrap())
+        path.push(pathElt.compactify(settings))
       } else {
         path.push(pathElt)
       }
     }
-    console.log("path:",...path)
+    return this
+  }
+  removeSubNodeHist() {
+    //transforms "tree" of subnodes and histories into tree of just histories
+    let path = []
+    for (let i = 0; i < this.path.length; i++) {
+      let pathElt = this.path[i]
+      if (pathElt.isHistory) {
+        path.push(pathElt.removeSubNodeHist())
+      } else {
+        path.push(pathElt)
+      }
+    }
     if (this.parent != null && this.subPos != null) {
       let pos = this.subPos
       let nodesBefore = this.parent.subnodes.slice(0, pos)
       let nodesAfter = this.parent.subnodes.slice(pos + 1)
       for (let i = 0; i < path.length; i++) {
         let node = path[i]
-        alert(node.toString())
-        let parent = Object.assign({}, this.parent)
+        let parent = Object.assign(CalcHistory.prototype, this.parent)
         parent.subnodes = [...nodesBefore, node, ...nodesAfter]
-        path[i]=parent
+        path[i] = parent
       }
     }
-    return path
+    return new CalcHistory({ path, description: this.description, action: this.action })
+  }
+  toHtmlElt(settings) {
+    let history = this.removeSubNodeHist().compactify(settings)
+    let elt = document.createElement("div")
+    let descElt = document.createElement("div")
+    descElt.innerHTML = this.description
+    for (let i = 0; i < history.path.length; i++) {
+      let pathElt = history.path[i]
+      if (pathElt.isHistory) {
+
+      }
+    }
   }
 }
 CalcHistory.prototype.isHistory = true
 M.CalcHistory = CalcHistory
-M.makePathElt = function (options) { //has become unused, keeping it if I ever need it
-  let obj
-  if (options.simult) {
-    obj = new SimultaniousPathElt(options)
-  } else {
-    obj = new PathElt(options)
-  }
-  return new Proxy(obj, {
-    get: (a, key) => {
-      if (key in obj && key != "toString") {
-        return obj[key]
-      }
-      return obj.result[key]
-    }
-  })
-}
 class SimultHistory {
-  constructor({ paths = [], result = null, description = "", action="-" } = {}) {
+  constructor({ paths = [], result = null, description = "", action = "-" } = {}) {
     this.paths = paths
     this.result = result
     this.description = description
-    if(M.actions[action]){
-      this.importance=M.actions[action].importance
-    }else{
+    if (M.actions[action]) {
+      this.importance = M.actions[action].importance
+    } else {
       throw new Error("action required for history")
     }
     this.action = action
@@ -140,11 +144,11 @@ class SimultHistory {
     if (this.result == null) {
       throw new Error("result needs to be given to be able to unwar SimultHistory Object")
     }
-    let maxStep=Math.max(...this.paths.map(path=>path.length))
-    for(let step=0;step<maxStep;step++){
-      let actionsDone={}
-      for(let i=0;i<this.paths.length;i++){
-        
+    let maxStep = Math.max(...this.paths.map(path => path.length))
+    for (let step = 0; step < maxStep; step++) {
+      let actionsDone = {}
+      for (let i = 0; i < this.paths.length; i++) {
+
       }
     }
     return []
@@ -152,20 +156,35 @@ class SimultHistory {
 }
 SimultHistory.prototype.isHistory = true
 M.SimultHistory = SimultHistory
-M.getSolutionPathGenerator = function* ({ obj, actions }) {
-  let objString = obj.toString()
-  let prevTexts = []
-  do {
-    prevTexts.push(objString)
-    for (let action of actions) {
-      let result = action(obj)
-      if (isGenerator(result.constructor)) {
-
+const histEltTemplate = document.querySelector("#histEltTemplate")
+class HistoryHTMLElement extends HTMLElement {
+  constructor(history, settings = {}) {
+    super()
+    this.attachShadow({ mode: "open" })
+    this.shadowRoot.appendChild(histEltTemplate.content.cloneNode(true))
+    history = history.compactify(settings)
+    if (history.description) {
+      this.setSlot("description", document.createTextNode(history.description))
+    }
+    let subPath = document.createElement("div")
+    for (let pathElt of history.path) {
+      if (pathElt.isHistory) {
+        subPath.appendChild(new HistoryHTMLElement(pathElt, settings))
+      } else {
+        let elt = document.createElement("div")
+        elt.innerHTML = pathElt.toLatex()
+        MQ.StaticMath(elt)
+        subPath.appendChild(elt)
       }
     }
-    objString = obj.toString()
+    this.setSlot("subPath",subPath)
   }
-  while (!prevTexts.includes(objString))
+  setSlot(name, content) {
+    let div = document.createElement("div")
+    div.slot = name
+    div.appendChild(content)
+    this.appendChild(div)
+  }
 }
-M.unwrapSolutionPath = function (path) {
-}
+window.customElements.define("hist-elt", HistoryHTMLElement)
+M.HistoryHTMLElement = HistoryHTMLElement

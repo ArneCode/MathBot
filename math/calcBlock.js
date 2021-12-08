@@ -12,9 +12,6 @@ export class MathBlock {
   get exp() {
     return M.NumberBlock.one
   }
-  check() {
-    return this
-  }
   toSingularExp() {
     return this
   }

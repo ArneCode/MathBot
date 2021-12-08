@@ -82,7 +82,7 @@ function brack_to_gr(tokens) {
       if (level == -1) {
         throw new Error("bracket error")
       } else if (level == 0) {
-        let group = new Group(tokens_to_tree(group_arr))
+        let group = new Group({subnode:tokens_to_tree(group_arr)})
         nTokens.push(group)
         group_arr = []
       } else {

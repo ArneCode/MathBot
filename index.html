@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>repl.it</title>
+	<title>Mathbot</title>
 	<link href="style.css" rel="stylesheet" type="text/css" />
 	<!--Decimal js-->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/9.0.0/decimal.min.js" integrity="sha512-zPQm8HS4Phjo9pUbbk+HPH3rSWu5H03NFvBpPf6D9EU2xasj0ZxhYAc/lvv/HVDWMSE1Autj19i6nZOfiVQbFQ=="
@@ -33,7 +32,15 @@
       <input type="range" min="0" max="10" step="1">
     </div>
   </div>
-
+  <template id="histEltTemplate">
+    <div id="description">
+      description:
+      <slot name="description"></slot>
+    </div>
+    <div id="subPath">
+      <slot name="subPath"></slot>
+    </div>
+  </template>
 	<script src="mathquill/mathquill.min.js">
 	</script>
 	<script>

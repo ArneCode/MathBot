@@ -4,7 +4,6 @@ let windows={}
 for(let windowName of ["settings","main"]){
   windows[windowName]=document.getElementById(windowName+"Window")
 }
-console.log(windows)
 let equationMathField
 window.onload = function () {
   equationMathField = MQ.MathField(equationInput, {

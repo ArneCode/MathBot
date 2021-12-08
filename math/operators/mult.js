@@ -27,21 +27,23 @@ export default class Mult extends SwapOpBlock {
     return numFactor
   }
   check() {
-    let subnodes = this.subnodes.filter(node => !node.isOne)
-    if (subnodes.length == 1) {
-      return subnodes[0]
-    }
-    if (subnodes.length == 0) {
-      return new M.NumberBlock.one
-    }
-    if (subnodes.some(node => node.isZero)) {
-      return new M.NumberBlock.zero
-    }
-    return new M.CalcHistory({
-      path: new Mult({ subnodes }),
+    let history = new M.CalcHistory({
       description: "removing ones from multiplication chain",
-      action:"check"
+      action: "check",
     })
+    history.add(this)
+    let obj = history.add(super.check())
+    let subnodes = obj.subnodes.filter(node => !node.isOne)
+    if (subnodes.length == 1) {
+      history.add(subnodes[0])
+    } else if (subnodes.length == 0) {
+      history.add(new M.NumberBlock.one)
+    } else if (subnodes.some(node => node.isZero)) {
+      history.add(new M.NumberBlock.zero)
+    } else {
+      history.add(new Mult({ subnodes }))
+    }
+    return history
   }
   reduceNumbers() {
     let history = new M.CalcHistory({
@@ -58,7 +60,7 @@ export default class Mult extends SwapOpBlock {
     return history
   }
   reduceFactors() {
-    let history = new M.CalcHistory({action:"mult"})
+    let history = new M.CalcHistory({ action: "mult" })
     let obj = history.add(super.reduceNumbers())
     let factors = obj.getFactors()
     let factorList = []
@@ -94,11 +96,11 @@ export default class Mult extends SwapOpBlock {
       let expHistory = new M.CalcHistory({
         path: [exp],
         description: "adding the exponents of factors with the same base",
-        action:"-"
+        action: "-"
       })
       exp = expHistory.add(exp.reduceNumbers())
       exp = expHistory.add(exp.check())
-      let powHistory = new M.CalcHistory({ path: expHistory , action:"-"})
+      let powHistory = new M.CalcHistory({ path: expHistory, action: "-" })
       let pow = powHistory.add(new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }))
       pow = powHistory.add(pow.check())
       expHistory.set({ parent: pow, subPos: 1 })

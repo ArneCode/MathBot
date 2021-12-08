@@ -1,8 +1,8 @@
 import { SingleBlock } from "../calcBlock.js"
 export default class Group extends SingleBlock {
-  constructor(subnode = null) {
+  constructor({subnode = null,subnodes=[]}={}) {
     super()
-    this.subnode = subnode
+    this.subnode = subnode||subnodes[0]
     this.type = "group"
     this.isGroup = true
   }
@@ -22,7 +22,7 @@ export default class Group extends SingleBlock {
     if (this.subnode.isSingle) {
       return this.subnode
     }
-    return new Group(this.subnode.reduceGroups())
+    return new Group({subnode:this.subnode.reduceGroups()})
   }
 }
 M.singles.Group = Group

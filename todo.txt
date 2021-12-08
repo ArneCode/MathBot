@@ -1,3 +1,5 @@
 according to https://gist.github.com/loveencounterflow/ef69e7201f093c6a437d2feb0581be3d , try to always use for(let i=0;i<arr.length;i++), when looping over an array ==> avoid yield
 
 change isNumber etc in constructor to class.prototype.is"?"
+
+do Web Workers?
