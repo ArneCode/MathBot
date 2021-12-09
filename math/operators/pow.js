@@ -12,6 +12,8 @@ export default class Pow extends TwoSideOp {
       console.log({left,right})
       throw new Error("Blocks on both sides of '^' must be singles")
     }*/
+    let pLeft=left
+    let pRight=right
     try {
       while (left.isGroup) {
         left = left.subnode
@@ -20,7 +22,8 @@ export default class Pow extends TwoSideOp {
         right = right.subnode
       }
     } catch (e) {
-      console.log({ left, right }, e)
+      console.log({ left, right ,pLeft,pRight}, e)
+      throw e
     }
     super({ sign: "^", priority: 4, left, right })
     this.isPow = true

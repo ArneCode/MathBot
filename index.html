@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
 	<title>Mathbot</title>
-	<link href="style.css" rel="stylesheet" type="text/css" />
+	<link href="css/style.css" rel="stylesheet" type="text/css" />
 	<!--Decimal js-->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/9.0.0/decimal.min.js" integrity="sha512-zPQm8HS4Phjo9pUbbk+HPH3rSWu5H03NFvBpPf6D9EU2xasj0ZxhYAc/lvv/HVDWMSE1Autj19i6nZOfiVQbFQ=="
 	 crossorigin="anonymous" referrerpolicy="no-referrer">
@@ -33,9 +33,12 @@
     </div>
   </div>
   <template id="histEltTemplate">
+	<link href="css/histElt.css" rel="stylesheet" type="text/css" />
     <div id="description">
-      description:
       <slot name="description"></slot>
+    </div>
+    <div id="action">
+      <slot name="action"></slot>
     </div>
     <div id="subPath">
       <slot name="subPath"></slot>

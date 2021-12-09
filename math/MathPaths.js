@@ -25,7 +25,10 @@ M.actions = {
   },
   "-": {
     importance: 0
-  }
+  },
+  test:{
+    importance:0
+  },
 }
 class CalcHistory {
   constructor({ path = [], parent = null, subPos = null, description = "", action = "" } = {}) {
@@ -71,11 +74,13 @@ class CalcHistory {
     for (let i = 0; i < this.path.length; i++) {
       let pathElt = this.path[i]
       if (pathElt.isHistory) {
-        path.push(pathElt.compactify(settings))
+        pathElt = pathElt.compactify(settings)
+        path.push(pathElt)
       } else {
         path.push(pathElt)
       }
     }
+    this.path = path
     return this
   }
   removeSubNodeHist() {
@@ -102,24 +107,23 @@ class CalcHistory {
     }
     return new CalcHistory({ path, description: this.description, action: this.action })
   }
-  toHtmlElt(settings) {
-    let history = this.removeSubNodeHist().compactify(settings)
-    let elt = document.createElement("div")
-    let descElt = document.createElement("div")
-    descElt.innerHTML = this.description
-    for (let i = 0; i < history.path.length; i++) {
-      let pathElt = history.path[i]
+  unwrap(settings = {}) {
+    let path = []
+    for (let pathElt of this.path) {
       if (pathElt.isHistory) {
-
+        path.push(...pathElt.unwrap(settings))
+      } else {
+        path.push(pathElt)
       }
     }
+    return path
   }
 }
 CalcHistory.prototype.isHistory = true
 M.CalcHistory = CalcHistory
 class SimultHistory {
   constructor({ paths = [], result = null, description = "", action = "-" } = {}) {
-    this.paths = paths
+    this.paths = paths.map(path => path.isHistory ? path : new CalcHistory({ path }))
     this.result = result
     this.description = description
     if (M.actions[action]) {
@@ -130,7 +134,7 @@ class SimultHistory {
     this.action = action
   }
   add(elt) {
-    this.paths.push(elt)
+    this.paths.push(elt.isHistory ? elt : new CalcHistory({ path: elt, action: "-" }))
     return elt.result
   }
   set(options) {
@@ -140,18 +144,93 @@ class SimultHistory {
       }
     }
   }
-  unwrap() {
+  unwrap(settings = {}) {
+    return this.compactify(settings).unwrap(settings)
+  }
+  compactify(settings = {}) {
+    let obj = this.mergePaths(settings)
+    return obj.compactify(settings)
+  }
+  mergePaths(settings = {}) {
     if (this.result == null) {
       throw new Error("result needs to be given to be able to unwar SimultHistory Object")
     }
-    let maxStep = Math.max(...this.paths.map(path => path.length))
-    for (let step = 0; step < maxStep; step++) {
-      let actionsDone = {}
-      for (let i = 0; i < this.paths.length; i++) {
-
-      }
+    if(this.paths.length==1){
+      return new CalcHistory({path:this.paths[0],action:this.action,description:this.description})
     }
-    return []
+    let paths = this.paths.map(path => path.compactify(settings).unwrap(settings))
+    let maxStep = Math.max(...paths.map(path => path.length))
+    let pElts = []
+    let pPathElts = []
+    let nPath = []
+    for (let step = 0; true; step++) {
+      if (paths.every(path => !path[step])) {
+        break;
+      }
+      if (step > 1000) {
+        throw "steps > 1000"
+      }
+      let pathElts = paths.map((path, idx) => path[step] || pPathElts[idx])
+      let actionsDone = {}
+      for (let i = 0; i < paths.length; i++) {
+        let pathElt = pathElts[i]
+        if (!pathElt) {
+          console.log({ pathElts, i, paths, step, elt: this, pPathElts })
+        }
+        if (pathElt.isMathBlock) {
+          continue;
+        }
+        let { action } = pathElt
+        if (actionsDone[action]) {
+          actionsDone[action]++
+        } else {
+          actionsDone[action] = 1
+        }
+      }
+      let maxAction = { times: 0, action: "none" }
+      for (let action in actionsDone) {
+        if (actionsDone[action] > maxAction.times) {
+          maxAction = { action, times: action[action] }
+        }
+      }
+      let { action } = maxAction
+      if (action == "none") {
+        try {
+          pPathElts = pathElts
+          let obj = new this.result.constructor({ subnodes: pathElts })
+          nPath.push(new CalcHistory({ path: obj, action: "-" }))
+        } catch (err) {
+          console.log("MathPath errer",{pathElts,paths,result:this.result})
+          throw err
+        }
+
+        continue
+      }
+      let subnodes = []
+      let descriptions = []
+      for (let i = 0; i < pathElts.length; i++) {
+        let pathElt = pathElts[i]
+        if (pathElt.isHistoryBlock) {
+          if (pathElt.action != action) {
+            if (pathElt.description) {
+              descriptions.push(pathElt.description)
+            }
+            pathElt = pathElt.result
+            paths[i].splice(step, 0, pathElt)
+          }
+        }
+        subnodes.push(pathElt)
+      }
+      let obj = new this.result.constructor({ subnodes })
+      if (action == "none") {
+        action = "-"
+      }
+      nPath.push(new CalcHistory({ path: obj, action, description: descriptions.join(",") }))
+      console.log("added to nPath", nPath)
+      pPathElts = pathElts.map(elt => elt.result)
+    }
+    let history = new CalcHistory({ path: nPath, action: "-" })
+    return history
   }
 }
 SimultHistory.prototype.isHistory = true
@@ -166,6 +245,7 @@ class HistoryHTMLElement extends HTMLElement {
     if (history.description) {
       this.setSlot("description", document.createTextNode(history.description))
     }
+    this.setSlot("action",document.createTextNode(history.action))
     let subPath = document.createElement("div")
     for (let pathElt of history.path) {
       if (pathElt.isHistory) {
@@ -177,7 +257,7 @@ class HistoryHTMLElement extends HTMLElement {
         subPath.appendChild(elt)
       }
     }
-    this.setSlot("subPath",subPath)
+    this.setSlot("subPath", subPath)
   }
   setSlot(name, content) {
     let div = document.createElement("div")

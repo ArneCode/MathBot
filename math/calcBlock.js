@@ -52,7 +52,7 @@ export class MathBlock {
         let node = this.subnodes[i]
         subnodes.push(history.add(node[name]()))
       }
-      history.result = new this.constructor({ subnodes })
+      history.result = new this.constructor({ subnodes ,checkLength:false})
       return history
     }
     return this

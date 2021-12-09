@@ -3,3 +3,5 @@ according to https://gist.github.com/loveencounterflow/ef69e7201f093c6a437d2feb0
 change isNumber etc in constructor to class.prototype.is"?"
 
 do Web Workers?
+
+fully implement history to html conversion especially compactify

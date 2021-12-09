@@ -65,7 +65,7 @@ export default class Mult extends SwapOpBlock {
     let factors = obj.getFactors()
     let factorList = []
     let toSkip = []
-    let simultHistory = new M.SimultHistory()
+    let simultHistory = new M.SimultHistory({action:"test", description:"simultHistory"})
     history.add(simultHistory)
     for (let idx_factor = 0; idx_factor < factors.length; idx_factor++) {
       if (toSkip.includes(idx_factor)) {
@@ -100,7 +100,7 @@ export default class Mult extends SwapOpBlock {
       })
       exp = expHistory.add(exp.reduceNumbers())
       exp = expHistory.add(exp.check())
-      let powHistory = new M.CalcHistory({ path: expHistory, action: "-" })
+      let powHistory = new M.CalcHistory({ path: expHistory, action: "-" ,description:"powHistory" })
       let pow = powHistory.add(new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }))
       pow = powHistory.add(pow.check())
       expHistory.set({ parent: pow, subPos: 1 })
