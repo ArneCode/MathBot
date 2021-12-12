@@ -1,3 +1,3 @@
 setTimeout(()=>{
-  console.log(M.parse("a^2*1").check().result.toString())
+  document.body.appendChild(new M.HistoryHTMLElement(M.parse("(a+b)^2").expandBases().compactify()))
 },1000)

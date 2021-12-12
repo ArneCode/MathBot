@@ -54,7 +54,7 @@ export default class Pow extends TwoSideOp {
         let rationalExp = new M.singles.NumberBlock({ n })
         factors.push(new Pow({ left: this.base, right: rationalExp, checkSingles: false }))
       }
-      console.log("adding to HIstor23",history.add(new M.operators.Mult({ subnodes: factors }).check()))
+      history.add(new M.operators.Mult({ subnodes: factors }).check())
       return history
     }
     return this
@@ -105,15 +105,10 @@ export default class Pow extends TwoSideOp {
       return history
     }
     if (obj.base.isPlus) {
-      console.log(obj.toString())
       obj = history.add(obj.expToMult())
-      console.log(obj.toString())
       obj = history.add(obj.reduceGroups())
-      console.log(obj.toString())
       obj = history.add(obj.reduceFactors())
-      console.log(obj.toString())
       obj = history.add(obj.reduceNumbers())
-      console.log(obj.toString())
       return history
     }
   }
