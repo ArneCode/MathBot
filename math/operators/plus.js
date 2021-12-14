@@ -5,7 +5,12 @@ export default class Plus extends SwapOpBlock {
       super({ sign: "+", priority: 0, subnodes: [], temp })
       return
     }
+    try{
     super({ sign: "+", priority: 0, subnodes })
+    }catch(err){
+      console.log({subnodes})
+      throw err
+    }
     if (subnodes.length == 0) {
       console.log(new Error("subnodes length 0"), this)
     }

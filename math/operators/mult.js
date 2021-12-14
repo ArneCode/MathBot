@@ -125,13 +125,19 @@ export default class Mult extends SwapOpBlock {
     return history
   }
   toExpForm({ targetVar }) {
-    let obj = this.reduceNumbers()
-    obj = obj.reduceNumbers()
-    obj = obj.reduceGroups()
-    obj = obj.reduceFactors()
-    obj = obj.reduceNonValExps()
-    obj = obj.reduceNumbers()
-    return obj
+    let history=new M.CalcHistory({action:"toExpForm"})
+    let obj = history.add(this.reduceNumbers())
+    try{
+      obj = history.add(obj.reduceNumbers())
+    }catch(err){
+      console.log(obj,this)
+      throw err
+    }
+    obj = history.add(obj.reduceGroups())
+    obj = history.add(obj.reduceFactors())
+    obj = history.add(obj.reduceNonValExps())
+    obj = history.add(obj.reduceNumbers())
+    return history
   }
 }
 M.operators.Mult = Mult

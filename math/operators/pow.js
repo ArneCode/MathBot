@@ -43,7 +43,7 @@ export default class Pow extends TwoSideOp {
   expToMult() {
     let { exp } = this
     let history = new M.CalcHistory({action:"expToMult"})
-    exp = history.add(exp.reduceNumbers())
+    exp = history.add(new M.CalcHistory({path:exp.reduceNumbers(),parent:this,subPos:1,action:"-"}))
     if (exp.isNumber) {
       let factors = []
       let n
@@ -113,19 +113,18 @@ export default class Pow extends TwoSideOp {
     }
   }
   toExpForm({ targetVar }) {
-    let history = new M.CalcHistory()
+    let history = new M.CalcHistory({action:"toExpForm"})
     let obj = history.add(this.reduceNumbers())
     //not jet implemented:
     //!!!!!!!!!!!!!!!!
-    M.getSolutionPathGenerator({
+    history.add(M.callRepeatedly({
       actions: [
         obj => obj.expandBases(),
         obj => obj.reduceNonValExps()
-      ]
-    })
-    obj = obj.expandBases()
-    obj = obj.reduceNonValExps()
-    return obj
+      ],
+      obj
+    }))
+    return history
   }
 }
 M.operators.Pow = Pow

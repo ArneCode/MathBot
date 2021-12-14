@@ -26,6 +26,9 @@ M.actions = {
   "-": {
     importance: 0
   },
+  toExpForm:{
+    importance:1
+  },
   test: {
     importance: 0
   },
@@ -49,7 +52,7 @@ class CalcHistory {
   }
   add(elt) {
     this.path.push(elt)
-    return this.result
+    return elt.result
   }
   set(options) {
     for (let key in options) {
@@ -64,7 +67,8 @@ class CalcHistory {
       return lastElt.result
     }
     if (!lastElt.isMathBlock) {
-      throw "should be Mathblock"
+      console.log(lastElt)
+      throw new Error("should be Mathblock")
     }
     return lastElt
   }
@@ -83,20 +87,66 @@ class CalcHistory {
       }
     }
     this.path = path
-    return this
+    return this.reduceSimilars(settings)
   }
-  reduceSimilars(settings={}) {
+  reduceSimilars(settings = {}) {
     let path
-    let pPath = this.path.map(elt=>elt.reduceSimilars)
+    let pPath = this.path.map(elt => elt.isHistory?elt.reduceSimilars():elt)
     let reduced = true
     while (reduced) {
       reduced = false
       path = []
-      for (let i = 0; i + 1 < this.path.length; i++) {
-        let elt1 = this.path[i]
-        let elt2 = this.path[i + 1]
-        //if (elt1.)
+      for (let i = 0; i < pPath.length; i++) {
+        let elt1 = pPath[i]
+        let elt2 = pPath[i + 1]
+        if (!elt2) {
+          path.push(elt1)
+          continue
+        }
+        if (elt1.isHistory) {
+          if (elt1.path.length > 1) {
+            path.push(elt1)
+            continue;
+          }
+        }
+        if (elt2.isHistory) {
+          if (elt2.path.length > 1) {
+            path.push(elt1)
+            continue;
+          }
+        }
+        if (!elt1.isHistory) {
+          elt1 = new CalcHistory({ path: elt1 ,action:"-"})
+        }
+        if (!elt2.isHistory) {
+          elt2 = new CalcHistory({ path: elt2 ,action:"-"})
+        }
+        let newHist
+        if (elt1.result.toString() == elt2.result.toString()) {
+          newHist = elt1.result
+        } /*else if (elt1.action == elt2.action) {
+          let newDesc = ""
+          if (elt1.description) {
+            newDesc = elt1.description
+            if (elt2.description) {
+              newDesc += " And "
+            }
+          }
+          if (elt2.description) {
+            newDesc += elt2.description
+          }
+          newHist = new CalcHistory(elt2)
+          newHist.description = newDesc
+        }*/
+        if (newHist) {
+          path.push(newHist)
+          i++
+          reduced = true
+        } else {
+          path.push(elt1)
+        }
       }
+      pPath = path
     }
     this.path = pPath
     return this

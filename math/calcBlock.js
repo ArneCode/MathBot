@@ -21,19 +21,21 @@ export class MathBlock {
   getFactors() {
     return [this]
   }
-  toForm({ form, targetVar }) {
+  toForm({ form, targetVar ="x"}={}) {
     if (!this.subnodes) {
+      console.log(this)
       return this
     }
-    let history = new M.CalcHistory()
+    let history = new M.CalcHistory({action:"-"})
     let simultHistory = new M.SimultHistory()
     history.add(simultHistory)
     let subnodes = []
     for (let i = 0; i < this.subnodes.length; i++) {
       let node = this.subnodes[i]
-      subnodes.push(simultHistory.add(node => node.toForm({ form, targetVar })))
+      subnodes.push(simultHistory.add(node.toForm({ form, targetVar })))
     }
-    let obj = new this.constructor({ subnodes })
+    let obj
+    obj = new this.constructor({ subnodes })
     simultHistory.result = obj
     let funcName = `to${form}Form`
     if (funcName in obj) {

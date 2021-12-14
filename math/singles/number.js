@@ -6,6 +6,9 @@ export default class NumberBlock extends ValueBlock {
     this.type = "number"
     this.isNumber = true
   }
+  get n(){
+    return this.value
+  }
   get isZero(){
     return this.value.eq(0)
   }
