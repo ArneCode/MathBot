@@ -65,7 +65,7 @@ export default class Mult extends SwapOpBlock {
     let factors = obj.getFactors()
     let factorList = []
     let toSkip = []
-    let simultHistory = new M.SimultHistory({action:"test", description:"simultHistory"})
+    let simultHistory = new M.SimultHistory({ action: "test", description: "simultHistory" })
     history.add(simultHistory)
     for (let idx_factor = 0; idx_factor < factors.length; idx_factor++) {
       if (toSkip.includes(idx_factor)) {
@@ -100,7 +100,7 @@ export default class Mult extends SwapOpBlock {
       })
       exp = expHistory.add(exp.reduceNumbers())
       exp = expHistory.add(exp.check())
-      let powHistory = new M.CalcHistory({ path: expHistory, action: "-" ,description:"powHistory" })
+      let powHistory = new M.CalcHistory({ path: expHistory, action: "-", description: "powHistory" })
       let pow = powHistory.add(new M.operators.Pow({ left: factor.base, right: exp, checkSingles: false }))
       expHistory.set({ parent: pow, subPos: 1 })
       pow = powHistory.add(pow.check())
@@ -110,7 +110,7 @@ export default class Mult extends SwapOpBlock {
     let numFactor = obj.getNumFactor()
     if (numFactor.toString() != "1") {
       factorList.unshift(numFactor)
-      simultHistory.paths.unshift(numFactor)
+      simultHistory.add(numFactor, 0)
     }
     let product
     if (factorList.length == 0) {
@@ -125,12 +125,12 @@ export default class Mult extends SwapOpBlock {
     return history
   }
   toExpForm({ targetVar }) {
-    let history=new M.CalcHistory({action:"toExpForm"})
+    let history = new M.CalcHistory({ action: "toExpForm" })
     let obj = history.add(this.reduceNumbers())
-    try{
+    try {
       obj = history.add(obj.reduceNumbers())
-    }catch(err){
-      console.log(obj,this)
+    } catch (err) {
+      console.log(obj, this)
       throw err
     }
     obj = history.add(obj.reduceGroups())
@@ -140,4 +140,5 @@ export default class Mult extends SwapOpBlock {
     return history
   }
 }
+Mult.prototype.isMult=true
 M.operators.Mult = Mult

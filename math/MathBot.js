@@ -68,13 +68,12 @@ M.callRepeatedly = function ({ actions, obj }) {
   let history = new M.CalcHistory({ action: "-" })
   let prevObjs = []
   let objString = obj.toString()
-  let action_idx = 0
   while (!prevObjs.includes(objString)) {
     prevObjs.push(objString)
-    obj = history.add(actions[action_idx](obj))
+    for(let i=0;i<actions.length;i++){
+      obj = history.add(actions[i](obj))
+    }
     objString = obj.toString()
-    action_idx = (action_idx + 1) % actions.length
-    //alert(action_idx)
   }
   return history
 }

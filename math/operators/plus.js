@@ -66,5 +66,10 @@ export default class Plus extends SwapOpBlock {
     history.add(sum.check())
     return history
   }
+  toExpForm({targetVar=null}={}){
+    let history=new M.CalcHistory({action:"toExpForm"})
+    history.add(this.reduceNumbers())
+    return history
+  }
 }
 M.operators.Plus = Plus

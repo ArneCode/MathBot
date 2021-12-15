@@ -26,8 +26,8 @@ M.actions = {
   "-": {
     importance: 0
   },
-  toExpForm:{
-    importance:1
+  toExpForm: {
+    importance: 1
   },
   test: {
     importance: 0
@@ -50,8 +50,12 @@ class CalcHistory {
     }
     this.action = action
   }
-  add(elt) {
-    this.path.push(elt)
+  add(elt, pos) {
+    if (pos) {
+      this.path.splice(pos, 0, elt)
+    } else {
+      this.path.push(elt)
+    }
     return elt.result
   }
   set(options) {
@@ -63,6 +67,9 @@ class CalcHistory {
   }
   get result() {
     let lastElt = this.path[this.path.length - 1]
+    if(!lastElt){
+      return "nothing's happened yet"
+    }
     if (lastElt.isHistory) {
       return lastElt.result
     }
@@ -91,7 +98,7 @@ class CalcHistory {
   }
   reduceSimilars(settings = {}) {
     let path
-    let pPath = this.path.map(elt => elt.isHistory?elt.reduceSimilars():elt)
+    let pPath = this.path.map(elt => elt.isHistory ? elt.reduceSimilars() : elt)
     let reduced = true
     while (reduced) {
       reduced = false
@@ -116,10 +123,10 @@ class CalcHistory {
           }
         }
         if (!elt1.isHistory) {
-          elt1 = new CalcHistory({ path: elt1 ,action:"-"})
+          elt1 = new CalcHistory({ path: elt1, action: "-" })
         }
         if (!elt2.isHistory) {
-          elt2 = new CalcHistory({ path: elt2 ,action:"-"})
+          elt2 = new CalcHistory({ path: elt2, action: "-" })
         }
         let newHist
         if (elt1.result.toString() == elt2.result.toString()) {
@@ -223,8 +230,13 @@ class SimultHistory {
     }
     this.action = action
   }
-  add(elt) {
-    this.paths.push(elt.isHistory ? elt : new CalcHistory({ path: elt, action: "-" }))
+  add(elt, pos) {
+    elt = elt.isHistory ? elt : new CalcHistory({ path: elt, action: "-" })
+    if (pos) {
+      this.paths.splice(0, 0, elt)
+    } else {
+      this.paths.push(elt)
+    }
     return elt.result
   }
   set(options) {
@@ -248,7 +260,13 @@ class SimultHistory {
     if (this.paths.length == 1) {
       return new CalcHistory({ path: this.paths[0], action: this.action, description: this.description })
     }
-    let paths = this.paths.map(path => path.compactify(settings).unwrap(settings))
+    let paths
+    try {
+      paths = this.paths.map(path => path.compactify(settings).unwrap(settings))
+    } catch (err) {
+      console.log(this)
+      throw err
+    }
     let maxStep = Math.max(...paths.map(path => path.length))
     let pElts = []
     let pPathElts = []

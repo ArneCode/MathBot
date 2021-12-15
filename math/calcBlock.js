@@ -23,7 +23,6 @@ export class MathBlock {
   }
   toForm({ form, targetVar ="x"}={}) {
     if (!this.subnodes) {
-      console.log(this)
       return this
     }
     let history = new M.CalcHistory({action:"-"})

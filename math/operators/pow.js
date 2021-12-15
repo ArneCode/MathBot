@@ -12,8 +12,8 @@ export default class Pow extends TwoSideOp {
       console.log({left,right})
       throw new Error("Blocks on both sides of '^' must be singles")
     }*/
-    let pLeft=left
-    let pRight=right
+    let pLeft = left
+    let pRight = right
     try {
       while (left.isGroup) {
         left = left.subnode
@@ -22,7 +22,7 @@ export default class Pow extends TwoSideOp {
         right = right.subnode
       }
     } catch (e) {
-      console.log({ left, right ,pLeft,pRight}, e)
+      console.log({ left, right, pLeft, pRight }, e)
       throw e
     }
     super({ sign: "^", priority: 4, left, right })
@@ -42,8 +42,8 @@ export default class Pow extends TwoSideOp {
   }
   expToMult() {
     let { exp } = this
-    let history = new M.CalcHistory({action:"expToMult"})
-    exp = history.add(new M.CalcHistory({path:exp.reduceNumbers(),parent:this,subPos:1,action:"-"}))
+    let history = new M.CalcHistory({ action: "expToMult" })
+    exp = history.add(new M.CalcHistory({ path: exp.reduceNumbers(), parent: this, subPos: 1, action: "-" }))
     if (exp.isNumber) {
       let factors = []
       let n
@@ -63,11 +63,11 @@ export default class Pow extends TwoSideOp {
     if (this.exp.isValueBlock) {
       return this
     }
-    let history = new M.CalcHistory()
+    let history = new M.CalcHistory({ action: "-" })
     let exp = history.add(this.exp.reduceNumbers())
     exp = history.add(exp.check())
     if (exp.isValueBlock) {
-      history.add(new Pow({ left: this.left, right: exp }))
+      history.add(new Pow({ left: this.base, right: exp }))
       return history
     }
     if (exp.isPlus) {
@@ -80,11 +80,30 @@ export default class Pow extends TwoSideOp {
       history.add(mult.check())
       return history
     }
-    console.log("reducing exp to singular value has failed")
-    return false
+    if (exp.isMult) {
+      let plusSubNodes = []
+      let subHist = new M.SimultHistory({ action: "-" })
+      history.add(subHist)
+      for (let i = 0; i < exp.subnodes.length; i++) {
+        let elt = exp.subnodes[i]
+        let powHist = new M.CalcHistory({ action: "-" })
+        let pow = new M.operators.Pow({ left: this.base, right: elt })
+        powHist.add(pow)
+        pow = powHist.add(pow.reduceNonValExps())
+        plusSubNodes.push(pow)
+        subHist.add(powHist)
+      }
+      let plus = new M.operators.Plus({ subnodes: plusSubNodes })
+      subHist.result = plus
+      history.add(plus)
+      history.add(plus.reduceNumbers())
+      return history
+    }
+    //could't reduce non value Exponents
+    return this
   }
   check() {
-    let history = new M.CalcHistory({action:"check"})
+    let history = new M.CalcHistory({ action: "check" })
     let obj = history.add(super.check())
     if (obj.exp.isOne) {
       history.add(obj.base)
@@ -97,7 +116,7 @@ export default class Pow extends TwoSideOp {
     if (this.isValueBlock) {
       return this
     }
-    let history = new M.CalcHistory({action:"expandBases"})
+    let history = new M.CalcHistory({ action: "expandBases" })
     let obj = history.add(this.reduceNumbers())
     obj = history.add(obj.check())
     if (obj.base.isValueBlock) {
@@ -111,9 +130,23 @@ export default class Pow extends TwoSideOp {
       obj = history.add(obj.reduceNumbers())
       return history
     }
+    if (obj.base.isPow) {
+      let expHist = new M.CalcHistory({ action: "-" })
+      history.add(expHist)
+      let exp = new M.operators.Mult({ subnodes: [obj.base.exp, obj.exp] })
+      expHist.add(exp)
+      exp = expHist.add(exp.reduceNumbers())
+      let newPow = new M.operators.Pow({ left: obj.base.base, right: exp })
+      expHist.set({ parent: newPow, subPos: 1 })
+      history.add(newPow)
+      history.add(newPow.expandBases())
+      return history
+    }
+    //couldn't expand Bases
+    return this
   }
   toExpForm({ targetVar }) {
-    let history = new M.CalcHistory({action:"toExpForm"})
+    let history = new M.CalcHistory({ action: "toExpForm" })
     let obj = history.add(this.reduceNumbers())
     //not jet implemented:
     //!!!!!!!!!!!!!!!!
