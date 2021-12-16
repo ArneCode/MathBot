@@ -26,5 +26,19 @@ export default class Div extends TwoSideOp {
     return this
     //temporary
   }
+  getExpInfo(targetVar) {
+    let leftInfo = this.left.getExpInfo(targetVar)
+    let rightInfo = this.right.getExpInfo(targetVar)
+    if (leftInfo.isNumber && rightInfo.isNumber) {
+      return leftInfo.subtract(rightInfo)
+    }
+    let infos=[]
+    if(isArray(leftInfo)){
+      infos=leftInfo
+    }
+    if(isArray(rightInfo)){
+      
+    }
+  }
 }
 M.operators.Div = Div

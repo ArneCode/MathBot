@@ -109,7 +109,7 @@ function structureOps(tokens, priority) {
     let curr_node = []
     let wrapNeg = () => {
       if (subnodes.length > 0) {
-        subnodes.push(new Plus())
+        subnodes.push(new Plus({temp:true}))
       }
       let subnode = new Negative({ subnode: tokens_to_tree(curr_node, priority + 1) })
       subnodes.push(subnode)

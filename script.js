@@ -1,4 +1,4 @@
-setTimeout(() => {
+/*setTimeout(() => {
   let startTime = performance.now()
   let history
   let n = 1
@@ -10,4 +10,4 @@ setTimeout(() => {
   console.log(`calculating ${n} times took ${endTime - startTime} milliseconds`)
   console.log(history.result.toString())
   document.body.appendChild(new M.HistoryHTMLElement(history))
-}, 2000)
+}, 2000)*/

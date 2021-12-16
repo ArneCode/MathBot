@@ -44,3 +44,6 @@ Array.prototype.eachWeach = function (f) {
 function isGenerator(fn){
   return ['GeneratorFunction', 'AsyncGeneratorFunction'].includes(fn.constructor.name)
 }
+function isArray(obj){
+  return Object.prototype.toString.call(obj) === '[object Array]'
+}

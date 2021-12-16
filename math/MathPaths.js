@@ -29,13 +29,16 @@ M.actions = {
   toExpForm: {
     importance: 1
   },
+  solving:{
+    importance:10
+  },
   test: {
     importance: 0
   },
 }
 class CalcHistory {
   constructor({ path = [], parent = null, subPos = null, description = "", action = "" } = {}) {
-    if (path.constructor.name == "Array") {
+    if (isArray(path)) {
       this.path = path
     } else {
       this.path = [path]

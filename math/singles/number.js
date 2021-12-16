@@ -2,14 +2,13 @@ import { ValueBlock } from "../calcBlock.js"
 export default class NumberBlock extends ValueBlock {
   constructor({ n }) {
     super()
-    try{
-    this.value = new Decimal(n)
-    }catch(err){
-      console.log("error when creating decimal",n)
+    try {
+      this.value = new Decimal(n)
+    } catch (err) {
+      console.log("error when creating decimal", n)
       throw err
     }
     this.type = "number"
-    this.isNumber = true
   }
   get n() {
     return this.value
@@ -36,11 +35,13 @@ export default class NumberBlock extends ValueBlock {
     return this
   }
   static mult(factors) {
-    return new NumberBlock({ n: factors.reduce((acc, factor) => acc.mul(factor.value), new Decimal(1)) })
+    return new NumberBlock({ n: factors.reduce(
+      (acc, factor) => factor.isMathBlock ? acc.mul(factor.value) : acc.mul(factor),
+       new Decimal(1)
+       ) })
   }
   mult(other) {
     try {
-      console.log("test")
       return NumberBlock.mult([this, other])
     } catch (err) {
       console.log("error when multiplying", this, other)
@@ -58,6 +59,9 @@ export default class NumberBlock extends ValueBlock {
       throw err
     }
   }
+  subtract(other){
+    new NumberBlock({n:this.value.sub(other.value)})
+  }
   static get one() {
     return one
   }
@@ -67,5 +71,6 @@ export default class NumberBlock extends ValueBlock {
 }
 const one = new NumberBlock({ n: 1 })
 const zero = new NumberBlock({ n: 0 })
+NumberBlock.prototype.isNumber=true
 M.singles.NumberBlock = NumberBlock
 M.NumberBlock = NumberBlock

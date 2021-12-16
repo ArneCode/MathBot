@@ -53,7 +53,9 @@ export default class Plus extends SwapOpBlock {
       let num = M.NumberBlock.add(nums)
       if (nodeFactors.length == 0) {
         nSubNodes.push(num)
-      } else {
+      } else if(num.toString()==1){
+        nSubNodes.push(new M.operators.Mult({subnodes:nodeFactors,checkLength:false}))
+      }else {
         nSubNodes.push(new M.operators.Mult({ subnodes: [num, ...nodeFactors] }))
       }
     }

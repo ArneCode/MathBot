@@ -44,5 +44,12 @@ export default class Negative extends OneSideLeftOp {
   reduceGroups() {
     return new Negative({ subnode: this.subnode.reduceGroups() })
   }
+  getNumFactor(){
+    return this.subnode.getNumFactor().mult("-1")
+  }
+  getFactors(){
+    return this.subnode.getFactors()
+  }
 }
+Negative.prototype.negOne=new Negative({subnode:M.NumberBlock.one})
 M.operators.Negative = Negative

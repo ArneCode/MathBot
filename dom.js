@@ -1,8 +1,9 @@
 let equationInput = document.getElementById("equationInput")
 let equationResult = document.getElementById("equationResult")
-let windows={}
-for(let windowName of ["settings","main"]){
-  windows[windowName]=document.getElementById(windowName+"Window")
+let stepsTakenContainer = document.getElementById("stepsTakenContainer")
+let windows = {}
+for (let windowName of ["settings", "main"]) {
+  windows[windowName] = document.getElementById(windowName + "Window")
 }
 let equationMathField
 window.onload = function () {
@@ -37,27 +38,23 @@ function handleEquationSubmit() {
   checkInput()
   console.clear()
   let latex = equationMathField.latex()
-  //console.log(latex)
-  let node
-  try {
-    node = M.parseLatex(latex).check().result
-  } catch (err) {
-    throw err
-  }
-  node=node.expToMult().result
-  node=node.reduceGroups().result
-  node=node.reduceFactors().result
-  node = node.reduceNumbers().result
-  equationResult.innerHTML = node.toLatex()
+  let history = new M.CalcHistory({ action: "-" })
+  let eq = new M.Equation(latex,true)
+  history.add(eq)
+  eq = history.add(eq.solveFor("x"))
+  let historyHtmlElt = new M.HistoryHTMLElement(history)
+  stepsTakenContainer.innerHTML = ""
+  stepsTakenContainer.appendChild(historyHtmlElt)
+  equationResult.innerHTML = eq.toLatex()
   //console.log(equationResult.innerHTML)
   MQ.StaticMath(equationResult)
 }
-function openWindow(name){
-  for(windowName in windows){
-    if(windowName==name){
-      windows[name].style.display="block"
-    }else{
-      windows[windowName].style.display="none"
+function openWindow(name) {
+  for (windowName in windows) {
+    if (windowName == name) {
+      windows[name].style.display = "block"
+    } else {
+      windows[windowName].style.display = "none"
     }
   }
 }

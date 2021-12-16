@@ -37,9 +37,9 @@ export default class Mult extends SwapOpBlock {
     if (subnodes.length == 1) {
       history.add(subnodes[0])
     } else if (subnodes.length == 0) {
-      history.add(new M.NumberBlock.one)
+      history.add(M.NumberBlock.one)
     } else if (subnodes.some(node => node.isZero)) {
-      history.add(new M.NumberBlock.zero)
+      history.add(M.NumberBlock.zero)
     } else {
       history.add(new Mult({ subnodes }))
     }
@@ -138,6 +138,9 @@ export default class Mult extends SwapOpBlock {
     obj = history.add(obj.reduceNonValExps())
     obj = history.add(obj.reduceNumbers())
     return history
+  }
+  getExpInfo(targetVar){
+    
   }
 }
 Mult.prototype.isMult=true

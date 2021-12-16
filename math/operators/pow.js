@@ -80,28 +80,10 @@ export default class Pow extends TwoSideOp {
       history.add(mult.check())
       return history
     }
-    if (exp.isMult) {
-      let plusSubNodes = []
-      let subHist = new M.SimultHistory({ action: "-" })
-      history.add(subHist)
-      for (let i = 0; i < exp.subnodes.length; i++) {
-        let elt = exp.subnodes[i]
-        let powHist = new M.CalcHistory({ action: "-" })
-        let pow = new M.operators.Pow({ left: this.base, right: elt })
-        powHist.add(pow)
-        pow = powHist.add(pow.reduceNonValExps())
-        plusSubNodes.push(pow)
-        subHist.add(powHist)
-      }
-      let plus = new M.operators.Plus({ subnodes: plusSubNodes })
-      subHist.result = plus
-      history.add(plus)
-      history.add(plus.reduceNumbers())
-      return history
-    }
     //could't reduce non value Exponents
     return this
   }
+
   check() {
     let history = new M.CalcHistory({ action: "check" })
     let obj = history.add(super.check())
