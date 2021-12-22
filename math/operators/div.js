@@ -28,17 +28,23 @@ export default class Div extends TwoSideOp {
   }
   getExpInfo(targetVar) {
     let leftInfo = this.left.getExpInfo(targetVar)
-    let rightInfo = this.right.getExpInfo(targetVar)
-    if (leftInfo.isNumber && rightInfo.isNumber) {
-      return leftInfo.subtract(rightInfo)
+    let rightInfo = this.right.getInfo(targetVar)
+    if (isArray(leftInfo) || isArray(rightInfo) || !leftInfo || !rightInfo) {
+      return false
     }
-    let infos=[]
-    if(isArray(leftInfo)){
-      infos=leftInfo
+    let k = new Div({ left: leftInfo.k, right: rightInfo.k })
+    let e
+    if (leftInfo.e.isNumber && rightInfo.e.isNumber) {
+      e = leftInfo.e.subtract(rightInfo.e)
+    } else {
+      e = new M.operators.Plus({
+        subnodes: [
+          leftInfo.e,
+          new M.operators.Negative(rightInfo.e)
+        ]
+      })
     }
-    if(isArray(rightInfo)){
-      
-    }
+    return {k,e}
   }
 }
 M.operators.Div = Div

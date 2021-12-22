@@ -73,5 +73,25 @@ export default class Plus extends SwapOpBlock {
     history.add(this.reduceNumbers())
     return history
   }
+  getExpInfo(targetVar){
+    let result=[]
+    let es={}
+    for(let i=0;i<this.subnodes.length;i++){
+      let info=this.subnodes[i].getExpInfo(targetVar)
+      if(isArray(info)||!info){
+        return false
+      }
+      let {k,e}=info
+      let eStr=e.toString()
+      let pObj=es[eStr]
+      if(pObj){
+        pObj.k=new M.operators.Plus({subnodes:[pObj.k,k]})
+        continue
+      }
+      es[eStr]=info
+      result.push(info)
+    }
+    return result
+  }
 }
 M.operators.Plus = Plus

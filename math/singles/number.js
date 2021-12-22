@@ -68,6 +68,9 @@ export default class NumberBlock extends ValueBlock {
   static get zero() {
     return zero
   }
+  getExpInfo(){
+    return {k:this,e:zero}
+  }
 }
 const one = new NumberBlock({ n: 1 })
 const zero = new NumberBlock({ n: 0 })

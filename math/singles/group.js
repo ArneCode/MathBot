@@ -24,5 +24,8 @@ export default class Group extends SingleBlock {
     }
     return new Group({subnode:this.subnode.reduceGroups()})
   }
+  getExpInfo(targetVar){
+    return this.subnode.getExpInfo(targetVar)
+  }
 }
 M.singles.Group = Group

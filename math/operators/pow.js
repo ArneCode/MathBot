@@ -141,5 +141,18 @@ export default class Pow extends TwoSideOp {
     }))
     return history
   }
+  getExpInfo(targetVar){
+    let baseInfo=this.base.getExpInfo(targetVar)
+    let expInfo=this.exp.getExpInfo(targetVar)
+    if(isArray(baseInfo)||isArray(expInfo)||!baseInfo||!expInfo){
+      return false
+    }
+    if(expInfo.k.toString()!=0){
+      return false
+    }
+    let k=new Pow({left:baseInfo.k,right:rightInfo.k})
+    let e=new Mult({subnodes:[baseInfo.e,rightInfo.k]}).reduceNumbers().result
+    return {k,e}
+  }
 }
 M.operators.Pow = Pow

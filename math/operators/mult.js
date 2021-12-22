@@ -140,7 +140,18 @@ export default class Mult extends SwapOpBlock {
     return history
   }
   getExpInfo(targetVar){
-    
+    let ks=[],es=[]
+    for(let i=0;i<this.subnodes.length;i++){
+      let res=this.subnodes[i].getExpInfo(targetVar)
+      if(isArray(res)||!res){
+        return false
+      }
+      ks.push(res.k)
+      es.push(res.e)
+    }
+    let k=new Mult({subnodes:ks}).reduceNumbers().result
+    let e=new M.operators.Plus({subnodes:es}).reduceNumbers().result
+    return {k,e}
   }
 }
 Mult.prototype.isMult=true

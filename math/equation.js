@@ -27,7 +27,9 @@ export class Equation extends MathBlock {
     let history = new M.CalcHistory({ action: "solving", description: `solving equation for ${targetVar}` })
     history.add(this)
     let eq = history.add(this.toForm({ form: "Exp", targetVar }))
-    //eq=history.add(eq.solveByOneSideVar())
+    let leftInfo=this.left.getExpInfo(targetVar)
+    let rightInfo=this.right.getExpInfo(targetVar)
+    console.log(leftInfo,rightInfo)
     return history
   }
   toString() {

@@ -50,6 +50,14 @@ export default class Negative extends OneSideLeftOp {
   getFactors(){
     return this.subnode.getFactors()
   }
+  getExpInfo(targetVar){
+    let info=this.subnode.getExpInfo(targetVar)
+    if(!info||isArray(info)){
+      return false
+    }
+    let k=new Negative({subnode:info.k}).reduceNumbers()
+    return {k,e:info.exp}
+  }
 }
 Negative.prototype.negOne=new Negative({subnode:M.NumberBlock.one})
 M.operators.Negative = Negative

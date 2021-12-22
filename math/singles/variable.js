@@ -10,5 +10,12 @@ export default class Variable extends ValueBlock {
   toLatex() {
     return this.name
   }
+  getExpInfo(targetVar) {
+    if (targetVar == this.name) {
+      let one = M.NumberBlock.one
+      return { k: one, e: one }
+    }
+    return { k: this, e: M.NumberBlock.zero }
+  }
 }
 M.singles.Variable = Variable

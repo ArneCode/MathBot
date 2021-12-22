@@ -4,5 +4,6 @@ change isNumber etc in constructor to class.prototype.is"?"
 
 do Web Workers?
 
-fully implement history to html conversion especially compactify
-change calcBlock parameters to always object, e.g group.js
+add WebAssembly to functions that take a lot of time
+
+convert project to WebAssembly completely? (Only after finishing)

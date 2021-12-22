@@ -7,3 +7,7 @@ History:
   -action: what is being done, following points in History with the same action will be summarized
   -description: short description of what is being done
 getExpInfo <calcBlock Method>: returns false, if targetVar is somehow enclosed, else returns info on the exponent of the targetVar (0 is also a valid exponent). Can be used to check if is in ExpForm
+
+expInfo format:{
+  {k,e}||[] of <{k,e}>
+}
