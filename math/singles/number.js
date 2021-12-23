@@ -28,7 +28,10 @@ export default class NumberBlock extends ValueBlock {
   toLatex() {
     return this.toString()
   }
-  getFactors() {
+  getFactors({includeNums=false}={}) {
+    if(includeNums){
+      return this.value.toNumber().getFactors().reverse().map(val=>new NumberBlock({n:val}))
+    }
     return []
   }
   getNumFactor() {
@@ -62,21 +65,30 @@ export default class NumberBlock extends ValueBlock {
   subtract(other){
     new NumberBlock({n:this.value.sub(other.value)})
   }
-  static get one() {
-    return one
-  }
-  static get zero() {
-    return zero
-  }
   get isEven(){
     return this.value.isInt()
   }
   getExpInfo(){
     return {k:this,e:zero}
   }
+  static min(...elts){
+    let min
+    let minN=Infinity
+    for(let i=0;i<elts.length;i++){
+      let elt=elts[i]
+      let n=elt.value.toNumber()
+      if(n<minN){
+        minN=n
+        min=elt
+      }
+    }
+    return min
+  }
 }
 const one = new NumberBlock({ n: 1 })
+NumberBlock.one=one
 const zero = new NumberBlock({ n: 0 })
+NumberBlock.zero=zero
 NumberBlock.prototype.isNumber=true
 M.singles.NumberBlock = NumberBlock
 M.NumberBlock = NumberBlock

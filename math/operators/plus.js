@@ -14,7 +14,6 @@ export default class Plus extends SwapOpBlock {
     if (subnodes.length == 0) {
       console.log(new Error("subnodes length 0"), this)
     }
-    this.isPlus = true
   }
   check() {
     let history = new M.CalcHistory({ action: "check" })
@@ -93,16 +92,44 @@ export default class Plus extends SwapOpBlock {
     }
     return result
   }
+  getFactors(params = {}) {
+    let shared = this.subnodes[0].getFactors(params)
+    for (let i = 1; i < this.subnodes.length; i++) {
+      let node = this.subnodes[i]
+      let nFacs = node.getFactors(params)
+      let nShared = []
+      for (let i = 0; i < nFacs.length; i++) {
+        let fac = nFacs[i]
+        if (fac.isPow) {
+          nShared = [...nShared, ...fac.sharedFactors(shared)]
+          continue;
+        }
+        for (let i = 0; i < shared.length; i++) {
+          let elt = shared[i]
+          if (elt.isPow) {
+            nShared = [...nShared, ...elt.sharedFactors([fac])]
+            continue;
+          }
+          if (elt.isEqualTo(fac)) {
+            nShared.push(fac)
+          }
+        }
+      }
+      shared = nShared
+    }
+    return shared
+  }
   sharedFactorsW(other, ignore = []) {
     let shared = []
-    let subnodes=[...this.subnodes]
-    while(subnodes.length>0){
-      if(subnodes.length==1){
+    let subnodes = [...this.subnodes]
+    while (subnodes.length > 0) {
+      if (subnodes.length == 1) {
         subnodes.push()
       }
-      let elt1=subnodes.pop()
-      let elt2=subnodes.pop()
+      let elt1 = subnodes.pop()
+      let elt2 = subnodes.pop()
     }
   }
 }
+Plus.prototype.isPlus = true
 M.operators.Plus = Plus

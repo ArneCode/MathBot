@@ -94,6 +94,31 @@ export default class Pow extends TwoSideOp {
     }
     return history
   }
+  sharedFactors(otherFacs) {
+    let shared = []
+    if(!this.exp.isNumber){
+      return []
+    }
+    for (let i = 0; i < otherFacs.length; i++) {
+      let factor = otherFacs[i]
+      if (this.base.isEqualTo(factor)) {
+        shared.push(factor)
+      }else if(factor.isPow){
+        if(!factor.exp.isNumber){
+          if(this.isEqualTo(factor)){
+            shared.push(factor)
+          }
+          continue;
+        }
+        if(this.base.isEqualTo(factor.base)){
+          let exp=M.NumberBlock.min(this.exp,factor.exp)
+          let pow=new Pow({left:this.base,right:exp})
+          shared.push(pow)
+        }
+      }
+    }
+    return shared
+  }
   expandBases() {
     if (this.isValueBlock) {
       return this

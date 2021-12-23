@@ -11,3 +11,5 @@ getExpInfo <calcBlock Method>: returns false, if targetVar is somehow enclosed, 
 expInfo format:{
   {k,e}||[] of <{k,e}>
 }
+
+splitOut: takes objects that should be split out of this object as arguments. Objects being able to be broken out has to be tested before calling this function

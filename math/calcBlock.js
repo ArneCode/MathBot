@@ -21,14 +21,14 @@ export class MathBlock {
   getFactors() {
     return [this]
   }
-  findPossFacs(){
-    return {facs:[this],inver:[]}
+  findPossFacs() {
+    return { facs: [this], inver: [] }
   }
-  toForm({ form, targetVar ="x"}={}) {
+  toForm({ form, targetVar = "x" } = {}) {
     if (!this.subnodes) {
       return this
     }
-    let history = new M.CalcHistory({action:"-"})
+    let history = new M.CalcHistory({ action: "-" })
     let simultHistory = new M.SimultHistory()
     history.add(simultHistory)
     let subnodes = []
@@ -47,16 +47,16 @@ export class MathBlock {
     return simultHistory
   }
 }
-["reduceGroups", "reduceNumbers", "check", "reduceFactors", "reduceNonValExps", "expandBases"].forEach(name => {
-  MathBlock.prototype[name] = function () {
+["reduceGroups", "reduceNumbers", "check", "reduceFactors", "reduceNonValExps", "expandBases", "splitOut"].forEach(name => {
+  MathBlock.prototype[name] = function (params = {}) {
     if (this.subnodes) {
-      let history = new M.SimultHistory({action:"-"})
+      let history = new M.SimultHistory({ action: "-" })
       let subnodes = []
       for (let i = 0; i < this.subnodes.length; i++) {
         let node = this.subnodes[i]
-        subnodes.push(history.add(node[name]()))
+        subnodes.push(history.add(node[name](params)))
       }
-      history.result = new this.constructor({ subnodes ,checkLength:false})
+      history.result = new this.constructor({ subnodes, checkLength: false })
       return history
     }
     return this
@@ -136,7 +136,7 @@ export class SwapOpBlock extends OpBlock {
     return subTexts.join(this.laSign)
   }
   reduceGroups() {
-    let history = new M.CalcHistory({action:"mult_out_group"})
+    let history = new M.CalcHistory({ action: "mult_out_group" })
     let obj = history.add(super.reduceGroups())
     let group
     let others = []

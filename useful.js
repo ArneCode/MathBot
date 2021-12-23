@@ -11,18 +11,19 @@ Number.prototype.getFactors = function () {
     return []
   }
   let factors = []
+  let bigFactors=[]
   let max = this / 2 + 1
   for (let n = 2; n < max; n++) {
     if (this % n == 0) {
       let corres = this / n
       max = corres
-      factors.push({ n, corres })
+      factors.push(n)
       if (n != corres) {
-        factors.push({ n: corres, corres: n })
+        bigFactors.push(corres)
       }
     }
   }
-  return factors
+  return [...factors,...bigFactors.reverse(),this.valueOf()]
 }
 Array.prototype.eachWeach = function (f) {
   let nlist = new Array()

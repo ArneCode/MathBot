@@ -82,7 +82,7 @@ function brack_to_gr(tokens) {
       if (level == -1) {
         throw new Error("bracket error")
       } else if (level == 0) {
-        let group = new Group({subnode:tokens_to_tree(group_arr)})
+        let group = new Group({ subnode: tokens_to_tree(group_arr) })
         nTokens.push(group)
         group_arr = []
       } else {
@@ -107,21 +107,31 @@ function structureOps(tokens, priority) {
     let subnodes = []
     let isNeg = false
     let curr_node = []
-    let wrapNeg = () => {
+    let wrapNeg = (plusAfter = false) => {
       if (subnodes.length > 0) {
-        subnodes.push(new Plus({temp:true}))
+        if (!plusAfter) {
+          subnodes.push(new Plus({ temp: true }))
+        }
       }
       let subnode = new Negative({ subnode: tokens_to_tree(curr_node, priority + 1) })
       subnodes.push(subnode)
+      if (plusAfter) {
+        subnodes.push(new Plus({ temp: true }))
+      }
       curr_node = []
     }
     for (let i = 0; i < tokens.length; i++) {
       let token = tokens[i]
-      if (token.isNegative) {
-        isNeg = !isNeg
-        if (!isNeg) {
+      if (token.isPlus) {
+        if (isNeg) {
+          wrapNeg(true)
+        }
+        isNeg = false
+      } else if (token.isNegative) {
+        if (isNeg) {
           wrapNeg()
         }
+        isNeg=true
       } else if (isNeg) {
         curr_node.push(token)
       } else {
@@ -195,7 +205,7 @@ function parseFuncVars(tokens) {
 function tokens_to_tree(tokens, priority = 0) {
   if (priority >= priorityList.length) {
     if (tokens.length > 1) {
-      console.log("tokens:", tokens)
+      console.log("tokens:", tokens.map(elt=>elt.toString()))
       throw new Error("there seems to be an error. it might be, that you forgot a * sign between elements of the calculation")
     }
     return tokens[0]
