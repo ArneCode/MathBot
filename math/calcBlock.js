@@ -21,6 +21,9 @@ export class MathBlock {
   getFactors() {
     return [this]
   }
+  findPossFacs(){
+    return {facs:[this],inver:[]}
+  }
   toForm({ form, targetVar ="x"}={}) {
     if (!this.subnodes) {
       return this

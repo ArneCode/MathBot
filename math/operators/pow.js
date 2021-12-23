@@ -141,18 +141,20 @@ export default class Pow extends TwoSideOp {
     }))
     return history
   }
-  getExpInfo(targetVar){
-    let baseInfo=this.base.getExpInfo(targetVar)
-    let expInfo=this.exp.getExpInfo(targetVar)
-    if(isArray(baseInfo)||isArray(expInfo)||!baseInfo||!expInfo){
+  getExpInfo(targetVar) {
+    let baseInfo = this.base.getExpInfo(targetVar)
+    let expInfo = this.exp.getExpInfo(targetVar)
+    if (isArray(baseInfo) || isArray(expInfo) || !baseInfo || !expInfo) {
+      console.log("1")
       return false
     }
-    if(expInfo.k.toString()!=0){
+    if (expInfo.e.toString() != 0) {
+      console.log("2")
       return false
     }
-    let k=new Pow({left:baseInfo.k,right:rightInfo.k})
-    let e=new Mult({subnodes:[baseInfo.e,rightInfo.k]}).reduceNumbers().result
-    return {k,e}
+    let k = new Pow({ left: baseInfo.k, right: expInfo.k })
+    let e = new M.operators.Mult({ subnodes: [baseInfo.e, expInfo.k] }).reduceNumbers().result
+    return { k, e }
   }
 }
 M.operators.Pow = Pow

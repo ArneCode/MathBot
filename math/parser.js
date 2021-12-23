@@ -146,8 +146,6 @@ function structureOps(tokens, priority) {
         }
         subnodes.push(tokens_to_tree(curr_node, priority + 1))
         curr_node = []
-        //tokens = tokens.slice(i+1)
-        //i = 0
       } else {
         curr_node.push(token)
       }
@@ -158,7 +156,6 @@ function structureOps(tokens, priority) {
     }
     subnodes.push(tokens_to_tree(curr_node, priority + 1))
     if (subnodes.length == 1) {
-      //console.log(tokens,subnodes,"length1")
       return subnodes[0]
     }
     if (opFound) {

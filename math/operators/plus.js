@@ -5,10 +5,10 @@ export default class Plus extends SwapOpBlock {
       super({ sign: "+", priority: 0, subnodes: [], temp })
       return
     }
-    try{
-    super({ sign: "+", priority: 0, subnodes })
-    }catch(err){
-      console.log({subnodes})
+    try {
+      super({ sign: "+", priority: 0, subnodes })
+    } catch (err) {
+      console.log({ subnodes })
       throw err
     }
     if (subnodes.length == 0) {
@@ -53,9 +53,9 @@ export default class Plus extends SwapOpBlock {
       let num = M.NumberBlock.add(nums)
       if (nodeFactors.length == 0) {
         nSubNodes.push(num)
-      } else if(num.toString()==1){
-        nSubNodes.push(new M.operators.Mult({subnodes:nodeFactors,checkLength:false}))
-      }else {
+      } else if (num.toString() == 1) {
+        nSubNodes.push(new M.operators.Mult({ subnodes: nodeFactors, checkLength: false }))
+      } else {
         nSubNodes.push(new M.operators.Mult({ subnodes: [num, ...nodeFactors] }))
       }
     }
@@ -68,30 +68,41 @@ export default class Plus extends SwapOpBlock {
     history.add(sum.check())
     return history
   }
-  toExpForm({targetVar=null}={}){
-    let history=new M.CalcHistory({action:"toExpForm"})
+  toExpForm({ targetVar = null } = {}) {
+    let history = new M.CalcHistory({ action: "toExpForm" })
     history.add(this.reduceNumbers())
     return history
   }
-  getExpInfo(targetVar){
-    let result=[]
-    let es={}
-    for(let i=0;i<this.subnodes.length;i++){
-      let info=this.subnodes[i].getExpInfo(targetVar)
-      if(isArray(info)||!info){
+  getExpInfo(targetVar) {
+    let result = []
+    let es = {}
+    for (let i = 0; i < this.subnodes.length; i++) {
+      let info = this.subnodes[i].getExpInfo(targetVar)
+      if (isArray(info) || !info) {
         return false
       }
-      let {k,e}=info
-      let eStr=e.toString()
-      let pObj=es[eStr]
-      if(pObj){
-        pObj.k=new M.operators.Plus({subnodes:[pObj.k,k]})
+      let { k, e } = info
+      let eStr = e.toString()
+      let pObj = es[eStr]
+      if (pObj) {
+        pObj.k = new M.operators.Plus({ subnodes: [pObj.k, k] })
         continue
       }
-      es[eStr]=info
+      es[eStr] = info
       result.push(info)
     }
     return result
+  }
+  sharedFactorsW(other, ignore = []) {
+    let shared = []
+    let subnodes=[...this.subnodes]
+    while(subnodes.length>0){
+      if(subnodes.length==1){
+        subnodes.push()
+      }
+      let elt1=subnodes.pop()
+      let elt2=subnodes.pop()
+    }
   }
 }
 M.operators.Plus = Plus

@@ -47,3 +47,9 @@ function isGenerator(fn){
 function isArray(obj){
   return Object.prototype.toString.call(obj) === '[object Array]'
 }
+function toArrayMaybe(obj){
+  if(!isArray(obj)){
+    obj=[obj]
+  }
+  return obj
+}

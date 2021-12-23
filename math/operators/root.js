@@ -29,7 +29,7 @@ export default class Root extends TwoSideOp {
     }else{
       let dividend=new M.NumberBlock({n:1})
       let divBlock=new M.operators.Div({left:dividend,right:this.index})
-      return divBlock//.reduceNumbers()
+      return divBlock
     }
   }
   get base(){

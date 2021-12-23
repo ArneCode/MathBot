@@ -78,7 +78,6 @@ export default class Mult extends SwapOpBlock {
           continue
         }
         let other = factors[idx_other]
-        //console.log(other.toString(),exps)
         let isShared = false
         if (factor.base.isEqualTo(other)) {
           exps.push(other.exp)
@@ -139,20 +138,32 @@ export default class Mult extends SwapOpBlock {
     obj = history.add(obj.reduceNumbers())
     return history
   }
-  getExpInfo(targetVar){
-    let ks=[],es=[]
-    for(let i=0;i<this.subnodes.length;i++){
-      let res=this.subnodes[i].getExpInfo(targetVar)
-      if(isArray(res)||!res){
+  getExpInfo(targetVar) {
+    let ks = [], es = []
+    for (let i = 0; i < this.subnodes.length; i++) {
+      let res = this.subnodes[i].getExpInfo(targetVar)
+      if (isArray(res) || !res) {
         return false
       }
       ks.push(res.k)
       es.push(res.e)
     }
-    let k=new Mult({subnodes:ks}).reduceNumbers().result
-    let e=new M.operators.Plus({subnodes:es}).reduceNumbers().result
-    return {k,e}
+    let k = new Mult({ subnodes: ks }).reduceNumbers().result
+    let e = new M.operators.Plus({ subnodes: es }).reduceNumbers().result
+    return { k, e }
+  }
+  sharedFactorsW(other, ignore = []) {
+    let shared = []
+    let rests = []
+    for (let i = 0; i < this.subnodes.length; i++) {
+      let node = this.subnodes[i]
+      let result = node.sharedFactorsW(other, ignore)
+      shared = [...shared, ...result.shared]
+      rests = [...rests, ...result.rests]
+    }
+    for(let i=0;i<shared.length)
+    return shared
   }
 }
-Mult.prototype.isMult=true
+Mult.prototype.isMult = true
 M.operators.Mult = Mult

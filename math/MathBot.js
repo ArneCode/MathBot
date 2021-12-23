@@ -12,7 +12,6 @@ M.latex_to_text = function (latex) {
     text = text.replace(/\\sqrt\[([^[\]]*)\]{([^{}]*)}/g, "($1) °§root§° ($2)")
     text = text.replace(/\\sqrt{([^{}]*)}/g, "2 °§root§° ($1)")
   }
-  console.log(text)
   return text
 }
 M.findSharedInArrs = function (arrs, { extractNums = false } = {}) { //only works with MathBlock Objects
@@ -70,10 +69,48 @@ M.callRepeatedly = function ({ actions, obj }) {
   let objString = obj.toString()
   while (!prevObjs.includes(objString)) {
     prevObjs.push(objString)
-    for(let i=0;i<actions.length;i++){
+    for (let i = 0; i < actions.length; i++) {
       obj = history.add(actions[i](obj))
     }
     objString = obj.toString()
   }
   return history
 }
+M.infoIsPolynomial = function (info) {
+  if (!info) {
+    return false
+  }
+  if (isArray(info)) {
+    for (let i = 0; i < info.length; i++) {
+      let exp = info[i].e
+      if (!exp.isNumber) { return false }
+      if (!exp.isEven) { return false }
+    }
+  } else {
+    if (!info.e.isNumber) { return false }
+    if (!info.e.isEven) { return false }
+  }
+  return true
+}
+M.infoHasNumExps = function (info) {
+  if (!info) {
+    return false
+  }
+  if (isArray(info)) {
+    for (let i = 0; i < info.length; i++) {
+      let exp = info[i].e
+      if (!exp.isNumber) { return false }
+    }
+  } else {
+    if (!info.e.isNumber) { return false }
+  }
+  return true
+}
+/*M.findSharedFactors = function (a, b) {
+  let shared = []
+  if (isArray(a)) {
+
+  } else {
+    
+  }
+}*/

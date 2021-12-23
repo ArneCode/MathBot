@@ -44,7 +44,14 @@ export default class Div extends TwoSideOp {
         ]
       })
     }
-    return {k,e}
+    return { k, e }
+  }
+  findPossFacs() {
+    let leftFacs = this.left.findPossFacs()
+    let rightFacs = this.right.findPossFacs()
+    let facs = leftFacs.fact.concat(rightFacs.inver)
+    let inver = leftFacs.inver.concat(rightFacs.facs)
+    return { facs, inver }
   }
 }
 M.operators.Div = Div

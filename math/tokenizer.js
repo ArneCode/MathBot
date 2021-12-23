@@ -32,7 +32,6 @@ export default function tokenize(text) {
         }
         tokens.push(token)
         text = text.slice(result.length)
-        //alert(text)
       }
     }
     if (!found) {

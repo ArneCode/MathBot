@@ -68,6 +68,9 @@ export default class NumberBlock extends ValueBlock {
   static get zero() {
     return zero
   }
+  get isEven(){
+    return this.value.isInt()
+  }
   getExpInfo(){
     return {k:this,e:zero}
   }
