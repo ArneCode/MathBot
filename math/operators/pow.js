@@ -96,23 +96,23 @@ export default class Pow extends TwoSideOp {
   }
   sharedFactors(otherFacs) {
     let shared = []
-    if(!this.exp.isNumber){
+    if (!this.exp.isNumber) {
       return []
     }
     for (let i = 0; i < otherFacs.length; i++) {
       let factor = otherFacs[i]
       if (this.base.isEqualTo(factor)) {
         shared.push(factor)
-      }else if(factor.isPow){
-        if(!factor.exp.isNumber){
-          if(this.isEqualTo(factor)){
+      } else if (factor.isPow) {
+        if (!factor.exp.isNumber) {
+          if (this.isEqualTo(factor)) {
             shared.push(factor)
           }
           continue;
         }
-        if(this.base.isEqualTo(factor.base)){
-          let exp=M.NumberBlock.min(this.exp,factor.exp)
-          let pow=new Pow({left:this.base,right:exp})
+        if (this.base.isEqualTo(factor.base)) {
+          let exp = M.NumberBlock.min(this.exp, factor.exp)
+          let pow = new Pow({ left: this.base, right: exp })
           shared.push(pow)
         }
       }
@@ -180,6 +180,44 @@ export default class Pow extends TwoSideOp {
     let k = new Pow({ left: baseInfo.k, right: expInfo.k })
     let e = new M.operators.Mult({ subnodes: [baseInfo.e, expInfo.k] }).reduceNumbers().result
     return { k, e }
+  }
+  splitOut(shared) {
+    if (!this.exp.isNumber) {
+      return { split: this, rest: shared }
+    }
+    let i
+    let returnRest = nElt => {
+      let result = nElt.splitOut(shared.slice(i + 1))
+      result.rest = [...shared.slice(0, i), ...result.rest]
+      return result
+    }
+    for (i = 0; i < shared.length; i++) {
+      let factor = shared[i]
+      if (this.base.isEqualTo(factor)) {
+        let exp = this.exp.subtract(M.NumberBlock.one)
+        let nElt = new Pow({ left: this.base, right: exp }).check().result
+        return returnRest(nElt)
+      } else if (factor.isPow) {
+        if (factor.isEqualTo(this)) {
+          return { split: M.NumberBlock.one, rest: [...shared.slice(0, i), ...shared.slice(i + 1)] }
+        }
+        if (!factor.exp.isNumber) {
+          continue;
+        }
+        if (factor.base.isEqualTo(this.base)) {
+          if (factor.exp.value.lessThan(this.exp.value)) {
+            let exp = this.exp.subtract(factor.exp)
+            let newElt=new Pow({left:this.base,right:exp}).check().result
+            return returnRest(newElt)
+          }else{
+            let exp = factor.exp.subtract(this.exp)
+            let pow = new Pow({left:this.base,right:exp})
+            return {split:M.NumberBlock.one,rest:[...shared.slice(0,i),pow,...shared.slice(i+1)]}
+          }
+        }
+      }
+    }
+    return {split:this,rest:shared}
   }
 }
 M.operators.Pow = Pow

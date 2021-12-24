@@ -63,7 +63,7 @@ export default class NumberBlock extends ValueBlock {
     }
   }
   subtract(other){
-    new NumberBlock({n:this.value.sub(other.value)})
+    return new NumberBlock({n:this.value.sub(other.value)})
   }
   get isEven(){
     return this.value.isInt()

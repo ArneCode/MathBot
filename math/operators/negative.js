@@ -57,6 +57,17 @@ export default class Negative extends OneSideLeftOp {
     }
     return [...factors, negOne]
   }
+  splitOut(factors) {
+    for (let i = 0; i < factors.length; i++) {
+      if (factors[i].toString() == "-1") {
+        factors = [...factors.slice(0, i), ...factors.slice(i + 1)]
+        break;
+      }
+    }
+    let result = this.subnode.splitOut(factors)
+    result = { split: new Negative({ subnode: result.split }), rest: result.rest }
+    return result
+  }
   getExpInfo(targetVar) {
     let info = this.subnode.getExpInfo(targetVar)
     if (!info || isArray(info)) {

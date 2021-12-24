@@ -46,8 +46,11 @@ export class MathBlock {
     }
     return simultHistory
   }
+  splitOut(){
+    
+  }
 }
-["reduceGroups", "reduceNumbers", "check", "reduceFactors", "reduceNonValExps", "expandBases", "splitOut"].forEach(name => {
+["reduceGroups", "reduceNumbers", "check", "reduceFactors", "reduceNonValExps", "expandBases"].forEach(name => {
   MathBlock.prototype[name] = function (params = {}) {
     if (this.subnodes) {
       let history = new M.SimultHistory({ action: "-" })
@@ -107,11 +110,12 @@ export class SwapOpBlock extends OpBlock {
   }
   toString() {
     let subTexts = []
-    for (let subnode of this.subnodes) {
+    for (let i=0;i<this.subnodes.length;i++) {
+      let subnode=this.subnodes[i]
       if (subnode.type == "operator" && subnode.priority < this.priority) {
         subTexts.push("(" + subnode.toString() + ")")
       }
-      else if (this.sign == "+" && subnode.isNegative) {
+      else if (this.sign == "+" && subnode.isNegative&&i>0) {
         subTexts[subTexts.length - 1] += subnode.toString()
       }
       else {

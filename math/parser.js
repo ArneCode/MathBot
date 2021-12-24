@@ -125,6 +125,8 @@ function structureOps(tokens, priority) {
       if (token.isPlus) {
         if (isNeg) {
           wrapNeg(true)
+        }else{
+          subnodes.push(new Plus({temp:true}))
         }
         isNeg = false
       } else if (token.isNegative) {

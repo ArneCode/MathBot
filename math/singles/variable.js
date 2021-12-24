@@ -17,5 +17,22 @@ export default class Variable extends ValueBlock {
     }
     return { k: this, e: M.NumberBlock.zero }
   }
+  splitOut(shared) {
+    for (let i = 0; i < shared.length; i++) {
+      let factor = shared[i]
+      if (factor.isVar) {
+        if (factor.name == this.name) {
+          return { split: M.NumberBlock.one, rest: [...shared.slice(0, i), ...shared.slice(i + 1)] }
+        }
+      } else if (factor.isPow) {
+        let result = factor.splitOut([this])
+        if (result.rest.length == 0) {
+          return { split: M.NumberBlock.one, rest: [result.split] }
+        }
+      }
+    }
+    return { split: this, rest: shared }
+  }
 }
+Variable.prototype.isVar = true
 M.singles.Variable = Variable

@@ -11,7 +11,7 @@ export default class Mult extends SwapOpBlock {
     }
     super({ sign: "*", priority: 2, subnodes, laSign: "\\cdot " })
   }
-  getFactors(params={}) {
+  getFactors(params = {}) {
     return this.subnodes.reduce((factors, node) => {
       return factors.concat(node.getFactors(params))
     }, [])
@@ -161,10 +161,20 @@ export default class Mult extends SwapOpBlock {
       shared = [...shared, ...result.shared]
       rests = [...rests, ...result.rests]
     }
-    for(let i=0;i<shared.length;i++){
-      
+    for (let i = 0; i < shared.length; i++) {
+
     }
     return shared
+  }
+  splitOut(shared) {
+    let subnodes = []
+    for (let i = 0; i < this.subnodes.length; i++) {
+      let node = this.subnodes[i]
+      let result = node.splitOut(shared)
+      subnodes[i] = result.split
+      shared = result.rest
+    }
+    return { split: new Mult({ subnodes }).check().result, rest: shared }
   }
 }
 Mult.prototype.isMult = true

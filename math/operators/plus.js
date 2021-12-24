@@ -130,6 +130,29 @@ export default class Plus extends SwapOpBlock {
       let elt2 = subnodes.pop()
     }
   }
+  splitOut(shared) {
+    let subnodes = [...this.subnodes]
+    let rest = []
+    for (let i_shared = 0; i_shared < shared.length; i_shared++) {
+      let factor = shared[i_shared]
+      let nSubNodes = []
+      let i_node
+      for (i_node = 0; i_node < subnodes.length; i_node++) {
+        let node = subnodes[i_node]
+        let result = node.splitOut([factor])
+        if (result.rest.length > 0) {
+          rest.push(factor)
+          break
+        }
+        nSubNodes[i_node] = result.split
+      }
+      if (!i_node < subnodes.length) { //loop has not been broken out of
+        subnodes = nSubNodes
+      }
+    }
+    let plus=new Plus({ subnodes })
+    return { split: plus, rest }
+  }
 }
 Plus.prototype.isPlus = true
 M.operators.Plus = Plus
