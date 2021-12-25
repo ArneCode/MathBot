@@ -35,9 +35,12 @@ M.actions = {
   test: {
     importance: 0
   },
+  removeSharedFactors:{
+    importance:3
+  }
 }
 class CalcHistory {
-  constructor({ path = [], parent = null, subPos = null, description = "", action = "" } = {}) {
+  constructor({ path = [], parent = null, subPos = null,kommando=null, description = "", action = "" } = {}) {
     if (isArray(path)) {
       this.path = path
     } else {
@@ -52,6 +55,7 @@ class CalcHistory {
       throw new Error("action required for history")
     }
     this.action = action
+    this.kommando = kommando
   }
   add(elt, pos) {
     if (pos) {
@@ -367,6 +371,13 @@ class HistoryHTMLElement extends HTMLElement {
     history = history.compactify(settings)
     if (history.description) {
       this.setSlot("description", document.createTextNode(history.description))
+    }
+    if(history.kommando){
+      let elt=document.createElement("div")
+      elt.innerHTML=history.kommando.toLatex()
+      MQ.StaticMath(elt)
+      this.setSlot("kommando",elt)
+      this.shadowRoot.querySelector("#kommando").style.display="block"
     }
     this.setSlot("action", document.createTextNode(history.action))
     let subPath = document.createElement("div")

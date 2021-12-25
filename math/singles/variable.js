@@ -33,6 +33,9 @@ export default class Variable extends ValueBlock {
     }
     return { split: this, rest: shared }
   }
+  includes(name){
+    return this.name==name
+  }
 }
 Variable.prototype.isVar = true
 M.singles.Variable = Variable

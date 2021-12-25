@@ -46,8 +46,13 @@ export class MathBlock {
     }
     return simultHistory
   }
-  splitOut(){
-    
+  includes(name){
+    for(let i=0;i<this.subnodes.length;i++){
+      if(this.subnodes[i].includes(name)){
+        return true
+      }
+    }
+    return false
   }
 }
 ["reduceGroups", "reduceNumbers", "check", "reduceFactors", "reduceNonValExps", "expandBases"].forEach(name => {
