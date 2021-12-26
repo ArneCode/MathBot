@@ -25,7 +25,7 @@ export class Equation extends MathBlock {
     this.right = subs[1]
   }
   removeSharedFactors(exclude = []) {
-    let factors = this.getFactors({ includeNums: true })
+    let factors = this.getFactors({ includeNums: true,split:true })
     let nFactors = []
     let numFactor = M.NumberBlock.one
     for (let i = 0; i < factors.length; i++) {

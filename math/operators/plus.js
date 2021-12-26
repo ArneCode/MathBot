@@ -5,6 +5,9 @@ export default class Plus extends SwapOpBlock {
       super({ sign: "+", priority: 0, subnodes: [], temp })
       return
     }
+        if(subnodes.some(node=>node.isHistory)){
+      throw new Error("Plus doesn't accept history as an Input")
+    }
     try {
       super({ sign: "+", priority: 0, subnodes })
     } catch (err) {
@@ -93,6 +96,10 @@ export default class Plus extends SwapOpBlock {
     return result
   }
   getFactors(params = {}) {
+    let {split=false}=params
+    if(!split){
+      return [this]
+    }
     let shared = this.subnodes[0].getFactors(params)
     for (let i = 1; i < this.subnodes.length; i++) {
       let node = this.subnodes[i]

@@ -101,7 +101,7 @@ class CalcHistory {
       }
     }
     this.path = path
-    return this.reduceSimilars(settings)
+    return this//.reduceSimilars(settings)
   }
   reduceSimilars(settings = {}) {
     let path
@@ -182,13 +182,6 @@ class CalcHistory {
       throw err
     }
     if (this.parent != null && this.subPos != null) {
-      /* for(let pathElt of path){
-         if(pathElt.isHistory){
-           path.push(...pathElt.unwrap(settings))
-         }else{
-           path.push(pathElt)
-         }
-       }*/
       let pos = this.subPos
       let nodesBefore = this.parent.subnodes.slice(0, pos)
       let nodesAfter = this.parent.subnodes.slice(pos + 1)
@@ -219,6 +212,15 @@ class CalcHistory {
       } else {
         path.push(pathElt)
       }
+    }
+    for(let i=0;i<path.length;i++){
+      let pathElt=path[i]
+      if(!pathElt.isHistory){
+        pathElt=new CalcHistory({action:this.action,path:pathElt})
+      }else if(pathElt.action=="-"){
+        pathElt.action=this.action
+      }
+      path[i]=pathElt
     }
     return path
   }
@@ -312,8 +314,8 @@ class SimultHistory {
       if (action == "none") {
         try {
           pPathElts = pathElts
-          let obj = new this.result.constructor({ subnodes: pathElts })
-          nPath.push(new CalcHistory({ path: obj, action: "-" }))
+          let obj = new this.result.constructor({ subnodes: pathElts.map(elt=>elt.result) })
+          nPath.push(new CalcHistory({ path: obj, action }))
         } catch (err) {
           console.log("MathPath errer", { pathElts, paths, result: this.result })
           throw err
@@ -336,12 +338,11 @@ class SimultHistory {
         }
         subnodes.push(pathElt)
       }
-      let obj = new this.result.constructor({ subnodes })
+      let obj = new this.result.constructor({ subnodes:subnodes.map(node=>node.result) })
       if (action == "none") {
         action = "-"
       }
       nPath.push(new CalcHistory({ path: obj, action, description: descriptions.join(",") }))
-      console.log("added to nPath", nPath)
       pPathElts = pathElts.map(elt => elt.result)
     }
     let history = new CalcHistory({ path: nPath, action: "-" })

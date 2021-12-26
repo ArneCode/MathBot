@@ -12,9 +12,13 @@ export default class Mult extends SwapOpBlock {
     super({ sign: "*", priority: 2, subnodes, laSign: "\\cdot " })
   }
   getFactors(params = {}) {
-    return this.subnodes.reduce((factors, node) => {
-      return factors.concat(node.getFactors(params))
-    }, [])
+    let factors=[]
+    for(let i=0;i<this.subnodes.length;i++){
+      let node=this.subnodes[i]
+      let subFacs=node.getFactors(params)
+      factors=[...factors,...subFacs]
+    }
+    return factors
   }
   getNumFactor() {
     let numFactor = M.NumberBlock.one
